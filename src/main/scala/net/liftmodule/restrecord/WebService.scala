@@ -32,8 +32,8 @@ class WebService(request: RequestBuilder) {
   def apply(path: List[String]) = 
     new WebService(request / buildPath(path))
   
-  def apply(path: List[String], params: Map[String, String]) = 
-    new WebService(request / buildPath(path) <<? params)
+  def apply(path: List[String], params: (String, String)*) = 
+    new WebService(request / buildPath(path) <<? Seq(params: _*))
 
   /** JSON Handlers */
 

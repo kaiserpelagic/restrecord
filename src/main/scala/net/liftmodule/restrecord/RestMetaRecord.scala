@@ -25,7 +25,9 @@ import dispatch._
 import com.ning.http.client.{RequestBuilder, Request}
 
 
-trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]] extends JSONMetaRecord[BaseRecord] {
+trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]] 
+  extends JSONMetaRecord[BaseRecord] {
+
   self: BaseRecord =>
   
   val http = Http 
@@ -39,7 +41,7 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]] extends JSONMetaRecor
   def findFrom(svc: WebService, path: List[String], 
     query: (String, String)*): Promise[Box[BaseRecord]] = {
    
-   withHttp(http, svc(path, Map(query: _*)) find, fromJValue)
+   withHttp(http, svc(path, query: _*) find, fromJValue)
   }
 
   def create[T](inst: BaseRecord): Promise[Box[T]] = 
