@@ -32,6 +32,9 @@ class WebService(request: RequestBuilder) {
   def apply(path: String) = 
     new WebService(request / path)
   
+  def apply(params: (String, String)*) = 
+    new WebService(request <<? Seq(params: _*))
+  
   def apply(path: String, params: (String, String)*) = 
     new WebService(request / path <<? Seq(params: _*))
 
