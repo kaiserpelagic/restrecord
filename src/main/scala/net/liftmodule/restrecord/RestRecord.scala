@@ -19,14 +19,12 @@ import net.liftweb.common._
 import net.liftweb.json.JsonAST._
 import net.liftweb.record.{MetaRecord, Record}
 
-import dispatch.{host, Promise}
+import dispatch.{Promise}
 import com.ning.http.client.{RequestBuilder}
 
 object RestWebService {
   var url = "localhost"
-  
-  def req: RequestBuilder = host(url)
-  def defaultWebService = new WebService(req)
+  def webservice = WebService(url)
 }
 
 trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] {
@@ -78,7 +76,7 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] {
   // override this if you want to change this record's specific webservice
   def myWebservice = Empty
 
-  def _discoverWebservice = myWebservice openOr RestWebService.defaultWebService 
+  def _discoverWebservice = myWebservice openOr RestWebService.webservice
 
   def webservice = _discoverWebservice 
 }
