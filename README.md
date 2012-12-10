@@ -21,7 +21,7 @@ By default the api context is "localhost". You can change this in Boot.scala by 
 object Boot.scala {
   etc ...
    
-  RestWebService.context = "search.twitter.com"
+  RestWebService.url = "search.twitter.com"
 }
 ```
 In this example I'm using Twitter's search api. The context can be overriden later if you need a different context for a speific Record.
