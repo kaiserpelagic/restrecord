@@ -36,20 +36,29 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] {
   /** Refine meta to require a RestMetaRecord */
   def meta: RestMetaRecord[MyType]
 
-  /** Defines the RESTful endpoint for this resource -- /foo */
+  /** 
+   *  Defines the RESTful endpoint for this resource 
+   *  Examples: /foo or /foo/bar 
+   */
   val uri: List[String]
   
-  /** Defines the RESTful suffix for endpoint -- /foo/:id/bar */
+  /** 
+   *  Defines the RESTful suffix for endpoint. 
+   *  Use when the resource is defined by and id.
+   *  Example: /uri/:id/uriSuffix
+   */
   val uriSuffix: List[String] = Nil
 
-  /** Defines and uri identifier for this resource -- /foo/:id or /foo/:id/bar */
-  def idPK: Box[String] = Empty
+  /** 
+   *  Defines and identifier for this resource 
+   */
+  def idPK: Box[Any] = Empty
 
   def buildUri: List[String] = uri ::: uriSuffix 
   
-  def buildUri(id: String): List[String] = uri ::: List(id) ::: uriSuffix 
+  def buildUri(id: Any): List[String] = uri ::: List(id.toString) ::: uriSuffix 
 
-  def buildUri(box: Box[String]): List[String] = box.map(buildUri(_)) openOr buildUri 
+  def buildUri(box: Box[Any]): List[String] = box.map(buildUri(_)) openOr buildUri 
 
   def create[T]: Promise[Box[T]] = meta.create(this)
 
