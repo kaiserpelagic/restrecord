@@ -29,12 +29,11 @@ object WebService {
 
 class WebService(request: RequestBuilder) {
 
-  import WebServiceHelpers._
-  def apply(path: List[String]) = 
-    new WebService(request / buildPath(path))
+  def apply(path: String) = 
+    new WebService(request / path)
   
-  def apply(path: List[String], params: (String, String)*) = 
-    new WebService(request / buildPath(path) <<? Seq(params: _*))
+  def apply(path: String, params: (String, String)*) = 
+    new WebService(request / path <<? Seq(params: _*))
 
   /** JSON Handlers */
 
@@ -48,13 +47,4 @@ class WebService(request: RequestBuilder) {
   
   /** Convert a JObject into a String */
   private def jobjectToString(in: JObject): String = Printer.compact(render(in))
-}
-
-
-object WebServiceHelpers {
-  def buildPath(path: List[String]): String = 
-    if (!path.isEmpty)
-      path.tail.foldLeft(path.head)(_ + "/" + _)
-    else 
-      ""
 }

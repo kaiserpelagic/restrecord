@@ -88,4 +88,12 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
       case Left(e) => Failure("error", Full(e), Empty)
     }
   }
+
+  /**
+   *  Transforms a list of strings into a url path
+   *  List("foo", "bar" "baz") becomes "foo/bar/baz"
+   */
+  implicit def listToUrlPath(path: List[String]): String = { 
+    path.tail.foldLeft(path.headOption getOrElse "")(_ + "/" + _)
+  }
 }
