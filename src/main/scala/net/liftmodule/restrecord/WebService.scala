@@ -35,6 +35,9 @@ class WebService(request: RequestBuilder) {
   def apply(path: String, params: (String, String)*) = 
     new WebService(request / path <<? Seq(params: _*))
 
+  def header(head: (String, String)*) = 
+    new WebService(request <:< Seq(head: _*))
+
   /** JSON Handlers */
 
   def find = request.GET OK Json
