@@ -19,6 +19,7 @@ import net.liftweb.json.JsonAST.{JValue, JObject, render}
 import net.liftweb.json.{Printer}
 
 import dispatch._
+import dispatch.as.lift._
 import com.ning.http.client.{RequestBuilder}
 
 
@@ -37,13 +38,13 @@ class WebService(request: RequestBuilder) {
 
   /** JSON Handlers */
 
-  def find = request.GET OK LiftJson.As
+  def find = request.GET OK Json
   
-  def create(body: JObject) = request.POST.setBody(jobjectToString(body)) OK LiftJson.As 
+  def create(body: JObject) = request.POST.setBody(jobjectToString(body)) OK Json 
   
-  def save(body: JObject) = request.PUT.setBody(jobjectToString(body)) OK LiftJson.As
+  def save(body: JObject) = request.PUT.setBody(jobjectToString(body)) OK Json
 
-  def delete = request.DELETE OK LiftJson.As
+  def delete = request.DELETE OK Json
   
   /** Convert a JObject into a String */
   private def jobjectToString(in: JObject): String = Printer.compact(render(in))
