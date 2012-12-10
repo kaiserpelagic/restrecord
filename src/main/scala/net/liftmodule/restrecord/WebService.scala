@@ -14,10 +14,6 @@
 package net.liftmodules
 package restrecord
 
-import net.liftweb.common._
-import net.liftweb.json.JsonAST.{JValue, JObject, render}
-import net.liftweb.json.{Printer}
-
 import dispatch._
 import dispatch.as.lift._
 import com.ning.http.client.{RequestBuilder}
@@ -45,12 +41,9 @@ class WebService(request: RequestBuilder) {
 
   def find = request.GET OK Json
   
-  def create(body: JObject) = request.POST.setBody(jobjectToString(body)) OK Json 
+  def create(body: String) = request.POST.setBody(body) OK Json 
   
-  def save(body: JObject) = request.PUT.setBody(jobjectToString(body)) OK Json
+  def save(body: String) = request.PUT.setBody(body) OK Json
 
   def delete = request.DELETE OK Json
-  
-  /** Convert a JObject into a String */
-  private def jobjectToString(in: JObject): String = Printer.compact(render(in))
 }

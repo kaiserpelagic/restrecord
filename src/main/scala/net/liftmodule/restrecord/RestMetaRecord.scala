@@ -18,7 +18,7 @@ import net.liftweb.util._
 import net.liftweb.common._
 import Helpers._
 import net.liftweb.json.JsonAST._
-import net.liftweb.http.js.{JsExp, JE, JsObj}
+import net.liftweb.json.{Printer}
 import net.liftweb.record.{MetaRecord, Record}
 
 import dispatch._
@@ -96,4 +96,9 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   implicit def listToUrlPath(path: List[String]): String = { 
     path.tail.foldLeft(path.headOption getOrElse "")(_ + "/" + _)
   }
+
+  /** 
+   *  Transforms a JObject into a String 
+   */
+  implicit def jobjectToString(in: JObject): String = Printer.compact(render(in))
 }
