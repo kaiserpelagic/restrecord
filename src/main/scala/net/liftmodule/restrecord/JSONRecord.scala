@@ -41,7 +41,7 @@ private object JSONRecordHelpers {
       case JField(name, _) if seen contains name => false
       case JField(name, _) => { seen = seen + name; true }
     }
-  
+  }  
 }
 
 import JSONRecordHelpers._
