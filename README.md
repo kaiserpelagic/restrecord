@@ -9,11 +9,6 @@ Uses <a href="http://dispatch.databinder.net/Dispatch.html">Databinder Dispatch'
 
 ### SBT Users 
 
-Add dependency to your project description:
-```scala
- val rest_record = "net.liftmodules" %% "restrecord" % (liftVersion + "-1.1") % "XXX"
-```
-
 ### Configuration
 By default the api context is "localhost". You can change this in Boot.scala by setting setting the context var in RestWebSerice. 
 
