@@ -19,7 +19,7 @@ object Boot.scala {
   RestWebService.url = "search.twitter.com"
 }
 ```
-In this example I'm using Twitter's search api. The context can be overriden later if you need a different context for a speific Record.
+In this example I'm using Twitter's search api. The url can be overriden later if you need a different context for a speific Record.
 
 ## Implemention
 
@@ -58,6 +58,9 @@ object SearchResult extends SearchResult with JSONMetaRecord[SearchResult] {
   Search.find(3) // search.twitter.com/search.json/3
   Search.find(3, ("foo", "bar")) // search.twitter.com/search.json/3?foo=bar 
   Search.find(("q", "liftweb"), ("baz, laraz")) //searh.twitter.com/search.json?q=liftweb&baz=larax
+  
+  All three return a Promise[Box[Search]]
+  
 ```
 * Find returns a: <code>Promise[Box[BaseRecord]]</code>
   * In this case it's <code>Promise[Box[Search]]</cod>
