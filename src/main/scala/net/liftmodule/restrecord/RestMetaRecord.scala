@@ -43,42 +43,45 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
    
    withHttp(http, svc(path, query: _*) find, fromJValue)
   }
-
-  def create[T](inst: BaseRecord): Promise[Box[T]] = 
+  
+  def create(inst: BaseRecord): Promise[Box[JValue]] = {
     createFrom(inst, inst.webservice)
+  }
 
-  def createFrom[T](inst: BaseRecord, svc: WebService): Promise[Box[T]] = { 
+  def createFrom[T](inst: BaseRecord, svc: WebService): Promise[Box[JValue]] = { 
     foreachCallback(inst, _.beforeCreate)
     try {
-      withHttp(http, svc(inst.createEndpoint) create(inst.asJValue), inst.handleResponse)
+      withHttp(http, svc(inst.createEndpoint) create(inst.asJValue), fullIdent)
     } finally {
       foreachCallback(inst, _.afterCreate)
     }
   }
-
-  def save[T](inst: BaseRecord): Promise[Box[T]] = 
+  
+  def save(inst: BaseRecord): Promise[Box[JValue]] = 
     saveFrom(inst, inst.webservice)
 
-  def saveFrom[T](inst: BaseRecord, svc: WebService): Promise[Box[T]] = {
+  def saveFrom(inst: BaseRecord, svc: WebService): Promise[Box[JValue]] = {
     foreachCallback(inst, _.beforeSave)
     try {
-      withHttp(http, svc(inst.saveEndpoint) save(inst.asJValue), inst.handleResponse)
+      withHttp(http, svc(inst.saveEndpoint) save(inst.asJValue), fullIdent)
     } finally {
       foreachCallback(inst, _.afterSave)
     }
   }
-
-  def delete[T](inst: BaseRecord): Promise[Box[T]] = 
+  
+  def delete(inst: BaseRecord): Promise[Box[JValue]] = 
     deleteFrom(inst, inst.webservice)
 
-  def deleteFrom[T](inst: BaseRecord, svc: WebService): Promise[Box[T]] = {
+  def deleteFrom(inst: BaseRecord, svc: WebService): Promise[Box[JValue]] = {
     foreachCallback(inst, _.beforeDelete)
     try { 
-      withHttp(http, svc(inst.deleteEndpoint) delete, inst.handleResponse)
+      withHttp(http, svc(inst.deleteEndpoint) delete, fullIdent)
     } finally {
       foreachCallback(inst, _.afterDelete)
     }
   }
+
+  def fullIdent(jv: JValue) = Full(jv)
 
   def withHttp[T](h: Http, body: (Request, OkFunctionHandler[JValue]), 
     handle: JValue => Box[T]): Promise[Box[T]] = {

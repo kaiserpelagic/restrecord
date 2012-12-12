@@ -58,11 +58,11 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] {
 
   def buildUri(box: Box[Any]): List[String] = box.map(buildUri(_)) openOr buildUri 
 
-  def create[T]: Promise[Box[T]] = meta.create(this)
+  def create[T]: Promise[Box[JValue]] = meta.create(this)
 
-  def save[T]: Promise[Box[T]] = meta.save(this)
+  def save[T]: Promise[Box[JValue]] = meta.save(this)
   
-  def delete[T]: Promise[Box[T]] = meta.delete(this)
+  def delete[T]: Promise[Box[JValue]] = meta.delete(this)
   
   def createEndpoint = buildUri
 
@@ -70,9 +70,6 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] {
 
   def deleteEndpoint = buildUri(idPK)
 
-  /** override this method to handle api specific POST / PUT / DELETE responses **/
-  def handleResponse[T](json: JValue): Box[T] = Empty 
-  
   // override this if you want to change this record's specific webservice
   def myWebservice = Empty
 
