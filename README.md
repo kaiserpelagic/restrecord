@@ -37,11 +37,6 @@ class Venue extends RestRecord[Venue] {
   // api.foursquare.com/v2/venues/:id
   override def idPK = id.valueBox 
 
-  // handleResponse is called with the json response from a PUT / POST / DELETE action
-  // by default it returns an Empty box
-  // let's return whenever the api response is
-  override handleResponse[T](json: JValue) = Full(json)
-
   object id extends OptionalStringField(this, Empty)
   object name extends OptionalStringField(this, Empty)
 }
