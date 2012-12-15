@@ -34,7 +34,7 @@ trait RestRecordPk[MyType <: RestRecordPk[MyType]] extends RestRecord[MyType] {
   
   def meta: RestMetaRecordPk[MyType]
 
-  def idPK: Any
+  def idPk: Any
 
   /** 
    *  Defines the RESTful suffix after id 
@@ -44,11 +44,11 @@ trait RestRecordPk[MyType <: RestRecordPk[MyType]] extends RestRecord[MyType] {
   
   def buildUri(id: Any): List[String] = uri ::: List(id.toString) ::: uriSuffix
   
-  override def findEndpoint(id: Any) = buildUri(id)
+  def findEndpoint(id: Any) = buildUri(id)
   
-  override def saveEndpoint = buildUri(idPK)
+  override def saveEndpoint = buildUri(idPk)
 
-  override def deleteEndpoint = buildUri(idPK)
+  override def deleteEndpoint = buildUri(idPk)
 }
 
 trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] {

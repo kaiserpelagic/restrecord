@@ -53,7 +53,6 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
 
   def create(inst: BaseRecord): Promise[Box[JValue]] = 
     createFrom(inst, inst.webservice)
-  }
 
   def createFrom(inst: BaseRecord, svc: WebService): Promise[Box[JValue]] = { 
     foreachCallback(inst, _.beforeCreate)
