@@ -24,6 +24,16 @@ import net.liftweb.record.{MetaRecord, Record}
 import dispatch._
 import com.ning.http.client.{RequestBuilder, Request}
 
+trait RestMetaRecordPk[BaseRecord <: RestRecordPk[BaseRecord]] extends RestMetaRecord[BaseRecord] {
+  self: BaseRecord =>
+  
+  def find(id: Any, query: (String, String)*): Promise[Box[BaseRecord]] = 
+    findFrom(webservice, findEndpoint(id), query: _*)
+ 
+  // possibly throw and exception saying "hey you need an id pal"
+  override def find(query: (String, String)*): Promise[Box[BaseRecord]] =
+    findFrom(webservice, findEndpoint(idPk), query: _*)
+}
 
 trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]] 
   extends JSONMetaRecord[BaseRecord] {
@@ -33,10 +43,7 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   val http = Http 
 
   def find(query: (String, String)*): Promise[Box[BaseRecord]] =
-    findFrom(webservice, buildUri, query: _*)
-
-  def find(id: String, query: (String, String)*): Promise[Box[BaseRecord]] = 
-    findFrom(webservice, buildUri(id), query: _*)
+    findFrom(webservice, findEndpoint, query: _*)
 
   def findFrom(svc: WebService, path: List[String], 
     query: (String, String)*): Promise[Box[BaseRecord]] = {
