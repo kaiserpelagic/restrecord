@@ -24,6 +24,16 @@ import net.liftweb.record.{MetaRecord, Record}
 import dispatch._
 import com.ning.http.client.{RequestBuilder, Request}
 
+trait RestMetaRecordPk[BaseRecord <: RestRecordPk[BaseRecord]] extends RestMetaRecord[BaseRecord] {
+  self: BaseRecord =>
+  
+  def find(id: Any, query: (String, String)*): Promise[Box[BaseRecord]] = 
+    findFrom(webservice, findEndpoint(id), query: _*)
+ 
+  // possibly throw and exception saying "hey you need an id pal"
+  override def find(query: (String, String)*): Promise[Box[BaseRecord]] =
+    findFrom(webservice, findEndpoint(idPk), query: _*)
+}
 
 trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]] 
   extends JSONMetaRecord[BaseRecord] {
@@ -35,20 +45,17 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   def find(query: (String, String)*): Promise[Box[BaseRecord]] =
     findFrom(webservice, buildUri, query: _*)
 
-  def find(id: Any, query: (String, String)*): Promise[Box[BaseRecord]] = 
-    findFrom(webservice, buildUri(id), query: _*)
-
   def findFrom(svc: WebService, path: List[String], 
     query: (String, String)*): Promise[Box[BaseRecord]] = {
    
    withHttp(http, svc(path, query: _*) find, fromJValue)
   }
-  
-  def create(inst: BaseRecord): Promise[Box[JValue]] = {
+
+  def create(inst: BaseRecord): Promise[Box[JValue]] = 
     createFrom(inst, inst.webservice)
   }
 
-  def createFrom[T](inst: BaseRecord, svc: WebService): Promise[Box[JValue]] = { 
+  def createFrom(inst: BaseRecord, svc: WebService): Promise[Box[JValue]] = { 
     foreachCallback(inst, _.beforeCreate)
     try {
       withHttp(http, svc(inst.createEndpoint) create(inst.asJValue), fullIdent)
@@ -56,7 +63,7 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
       foreachCallback(inst, _.afterCreate)
     }
   }
-  
+
   def save(inst: BaseRecord): Promise[Box[JValue]] = 
     saveFrom(inst, inst.webservice)
 
@@ -68,7 +75,7 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
       foreachCallback(inst, _.afterSave)
     }
   }
-  
+
   def delete(inst: BaseRecord): Promise[Box[JValue]] = 
     deleteFrom(inst, inst.webservice)
 

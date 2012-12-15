@@ -29,11 +29,35 @@ object RestWebService {
   def webservice = WebService(req)
 }
 
+trait RestRecordPk[MyType <: RestRecordPk[MyType]] extends RestRecord[MyType] {
+  self: MyType =>
+  
+  def meta: RestMetaRecordPk[MyType]
+
+  def idPK: Any
+
+  /** 
+   *  Defines the RESTful suffix after id 
+   *  Example: /uri/:id/uriSuffix
+   */
+  val uriSuffix: List[String] = Nil
+  
+  def buildUri(id: Any): List[String] = uri ::: List(id.toString) ::: uriSuffix
+  
+  override def findEndpoint(id: Any) = buildUri(id)
+  
+  override def saveEndpoint = buildUri(idPK)
+
+  override def deleteEndpoint = buildUri(idPK)
+}
+
 trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] {
 
   self: MyType =>
   
-  /** Refine meta to require a RestMetaRecord */
+  /** 
+   *  Refine meta to require a RestMetaRecord 
+   */
   def meta: RestMetaRecord[MyType]
 
   /** 
@@ -42,35 +66,21 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] {
    */
   val uri: List[String]
   
-  /** 
-   *  Defines the RESTful suffix for endpoint. 
-   *  Use when the resource is defined by and id.
-   *  Example: /uri/:id/uriSuffix
-   */
-  val uriSuffix: List[String] = Nil
-
-  /** 
-   *  Defines the identifier for this resource, if it has one 
-   */
-  def idPK: Box[Any] = Empty
-
-  def buildUri: List[String] = uri ::: uriSuffix 
+  def buildUri: List[String] = uri
   
-  def buildUri(id: Any): List[String] = uri ::: List(id.toString) ::: uriSuffix 
+  def create: Promise[Box[JValue]] = meta.create(this)
 
-  def buildUri(box: Box[Any]): List[String] = box.map(buildUri(_)) openOr buildUri 
-
-  def create[T]: Promise[Box[JValue]] = meta.create(this)
-
-  def save[T]: Promise[Box[JValue]] = meta.save(this)
+  def save: Promise[Box[JValue]] = meta.save(this)
   
-  def delete[T]: Promise[Box[JValue]] = meta.delete(this)
+  def delete: Promise[Box[JValue]] = meta.delete(this)
   
+  def findEndpoint = buildUri
+
   def createEndpoint = buildUri
 
-  def saveEndpoint = buildUri(idPK)
+  def saveEndpoint = buildUri
 
-  def deleteEndpoint = buildUri(idPK)
+  def deleteEndpoint = buildUri
 
   // override this if you want to change this record's specific webservice
   def myWebservice = Empty
