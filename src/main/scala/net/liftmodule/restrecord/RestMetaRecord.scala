@@ -48,7 +48,7 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   def findFrom(svc: WebService, path: List[String], 
     query: (String, String)*): Promise[Box[BaseRecord]] = {
    
-   withHttp(http, svc(path, query: _*) find, fromJValue)
+   withHttp(http, svc url(path) query(query: _*) find, fromJValue)
   }
 
   def create(inst: BaseRecord): Promise[Box[JValue]] = 
@@ -57,7 +57,7 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   def createFrom(inst: BaseRecord, svc: WebService): Promise[Box[JValue]] = { 
     foreachCallback(inst, _.beforeCreate)
     try {
-      withHttp(http, svc(inst.createEndpoint) create(inst.asJValue), fullIdent)
+      withHttp(http, svc url(inst.createEndpoint) create(inst.asJValue), fullIdent)
     } finally {
       foreachCallback(inst, _.afterCreate)
     }
@@ -69,7 +69,7 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   def saveFrom(inst: BaseRecord, svc: WebService): Promise[Box[JValue]] = {
     foreachCallback(inst, _.beforeSave)
     try {
-      withHttp(http, svc(inst.saveEndpoint) save(inst.asJValue), fullIdent)
+      withHttp(http, svc url(inst.saveEndpoint) save(inst.asJValue), fullIdent)
     } finally {
       foreachCallback(inst, _.afterSave)
     }
@@ -81,7 +81,7 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   def deleteFrom(inst: BaseRecord, svc: WebService): Promise[Box[JValue]] = {
     foreachCallback(inst, _.beforeDelete)
     try { 
-      withHttp(http, svc(inst.deleteEndpoint) delete, fullIdent)
+      withHttp(http, svc url(inst.deleteEndpoint) delete, fullIdent)
     } finally {
       foreachCallback(inst, _.afterDelete)
     }
@@ -110,4 +110,7 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
    *  Transforms a JObject into a String 
    */
   implicit def jobjectToString(in: JObject): String = Printer.compact(render(in))
+  
+  implicit def implyRequestBuilderToWebService(builder: RequestBuilder): WebService =
+    new WebService(builder)
 }

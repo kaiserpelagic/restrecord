@@ -19,14 +19,23 @@ import net.liftweb.common._
 import net.liftweb.json.JsonAST._
 import net.liftweb.record.{MetaRecord, Record}
 
-import dispatch.{Promise}
+import dispatch._
 import com.ning.http.client.{RequestBuilder}
 
 object RestWebService {
   var host = "localhost"
   var context: Box[String] = Empty
-  def req = host + (context.map("/" + _) openOr "")
-  def webservice = WebService(req)
+  
+  var user: Box[String] = Empty
+  var password: Box[String] = Empty
+  var ssl = false
+  
+  def req = { 
+    val _req = :/(host + (context.map("/" + _) openOr ""))
+    if (ssl) _req.as(user openOr "", password openOr "").secure else _req 
+  }
+
+  def webservice = new WebService(req)
 }
 
 trait RestRecordPk[MyType <: RestRecordPk[MyType]] extends RestRecord[MyType] {
