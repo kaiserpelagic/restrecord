@@ -136,3 +136,9 @@ val createRes: Promise[Box[JValue]] = MyRest.create
 val saveRes = Promise[Box[JValue]] = MyRest.save
 val deleteRes = Promise[Box[JValue]] = MyRest.delete
 ```
+
+### Example Project
+
+An example project using Twitter Search and RestRecord can be found here:
+
+https://github.com/kaiserpelagic/restrecord-example
