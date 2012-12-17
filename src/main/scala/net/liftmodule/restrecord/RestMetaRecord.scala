@@ -23,6 +23,7 @@ import net.liftweb.record.{MetaRecord, Record}
 
 import dispatch._
 import com.ning.http.client.{RequestBuilder, Request}
+import com.ning.http.client.oauth._
 
 trait RestMetaRecordPk[BaseRecord <: RestRecordPk[BaseRecord]] extends RestMetaRecord[BaseRecord] {
   self: BaseRecord =>
@@ -36,7 +37,7 @@ trait RestMetaRecordPk[BaseRecord <: RestRecordPk[BaseRecord]] extends RestMetaR
 }
 
 trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]] 
-  extends JSONMetaRecord[BaseRecord] {
+  extends JSONMetaRecord[BaseRecord] with Oauth {
 
   self: BaseRecord =>
   
@@ -47,9 +48,12 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
 
   def findFrom(svc: WebService, path: List[String], 
     query: (String, String)*): Promise[Box[BaseRecord]] = {
-   
-   withHttp(http, svc url(path) query(query: _*) find, fromJValue)
+
+    withHttp(http, oauth(svc url(path) query(query: _*)) find, fromJValue)
   }
+
+  def oauth(svc: WebService): WebService = 
+    if (oauth_?) svc oauth(consumer, token) else svc
 
   def create(inst: BaseRecord): Promise[Box[JValue]] = 
     createFrom(inst, inst.webservice)
@@ -91,26 +95,26 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
 
   def withHttp[T](h: Http, body: (Request, OkFunctionHandler[JValue]), 
     handle: JValue => Box[T]): Promise[Box[T]] = {
-    
+   
     h(body).either map {
       case Right(v) => handle(v)
       case Left(e) => Failure("error", Full(e), Empty)
     }
   }
 
-  /**
-   *  Transforms a list of strings into a url path
-   *  List("foo", "bar" "baz") becomes "foo/bar/baz"
-   */
-  implicit def listToUrlPath(path: List[String]): String = { 
-    path.tail.foldLeft(path.headOption getOrElse "")(_ + "/" + _)
-  }
-
   /** 
    *  Transforms a JObject into a String 
    */
   implicit def jobjectToString(in: JObject): String = Printer.compact(render(in))
-  
+
   implicit def implyRequestBuilderToWebService(builder: RequestBuilder): WebService =
     new WebService(builder)
+}
+
+trait Oauth {
+  import RestWebService._
+  
+  val oauth_? = oauth
+  val consumer = new ConsumerKey(consumerKey.getOrElse(""), consumerSecret.getOrElse(""))
+  val token = new RequestToken(requestToken.getOrElse(""), tokenSecret.getOrElse(""))
 }

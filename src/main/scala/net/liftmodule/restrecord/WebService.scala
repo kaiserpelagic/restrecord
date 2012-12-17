@@ -15,13 +15,14 @@ package net.liftmodules
 package restrecord
 
 import dispatch._
+import dispatch.oauth._
 import com.ning.http.client.{RequestBuilder}
-
+import com.ning.http.client.oauth._
 
 class WebService(val request: RequestBuilder) extends LiftJsonHandlers {
 
-  def url(path: String) = 
-    request / path
+  def url(path: List[String]) = 
+    path.foldLeft(request)((request, part) => request / part)
 
   def query(params: (String, String)*) = 
    request <<? Seq(params: _*)
@@ -29,9 +30,8 @@ class WebService(val request: RequestBuilder) extends LiftJsonHandlers {
   def head(head: (String, String)*) = 
     request <:< Seq(head: _*)
 
-  def oath(credentials: String) = {
-    request <:< Map()
-  }
+  def oauth(consumer: ConsumerKey, token: RequestToken) = 
+    new SigningVerbs(request) <@(consumer, token)
 }
 
 trait WebRequest {
