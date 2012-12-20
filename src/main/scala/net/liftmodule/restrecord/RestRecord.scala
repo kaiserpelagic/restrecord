@@ -18,15 +18,30 @@ package restrecord
 import net.liftweb.common._
 import net.liftweb.json.JsonAST._
 import net.liftweb.record.{MetaRecord, Record}
+import net.liftweb.util.Props 
 
-import dispatch.{Promise}
+import dispatch._
+import dispatch.oauth._
 import com.ning.http.client.{RequestBuilder}
 
 object RestWebService {
-  var url = "localhost"
-  def webservice = WebService(url)
-}
+  var host = "localhost"
+  var context: Box[String] = Empty
+  var ssl = false
+  
+  var oauth = false
+  val requestToken = Props.get("oauthRequestToken")
+  val tokenSecret =	Props.get("oauthTokenSecret")
+  val consumerKey = Props.get("oauthConsumerKey")
+  val consumerSecret = Props.get("oauthConsumerSecret") 
 
+  def req = { 
+    val _req = :/(host + (context.map("/" + _) openOr ""))
+    if (ssl) _req.secure else _req
+  }
+
+  def webservice = new WebService(req)
+}
 
 trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] {
 
@@ -77,9 +92,6 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] {
 
   def deleteEndpoint = _discoverEndpoint 
 
-  /** override this method to handle api specific POST / PUT / DELETE responses **/
-  def handleResponse(jv: JValue): Box[JValue] = Full(jv) 
-  
   // override this if you want to change this record's specific webservice
   def myWebservice = Empty
 

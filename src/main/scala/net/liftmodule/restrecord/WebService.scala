@@ -15,35 +15,37 @@ package net.liftmodules
 package restrecord
 
 import dispatch._
-import dispatch.as.lift._
+import dispatch.oauth._
 import com.ning.http.client.{RequestBuilder}
+import com.ning.http.client.oauth._
 
+class WebService(val request: RequestBuilder) extends LiftJsonHandlers {
 
-object WebService {
-  def apply(url: String) = new WebService(host(url))
+  def url(path: List[String]) = 
+    path.foldLeft(request)((request, part) => request / part)
+
+  def query(params: (String, String)*) = 
+   request <<? Seq(params: _*)
+  
+  def head(head: (String, String)*) = 
+    request <:< Seq(head: _*)
+
+  def oauth(consumer: ConsumerKey, token: RequestToken) = 
+    new SigningVerbs(request) <@(consumer, token)
 }
 
-class WebService(request: RequestBuilder) {
+trait WebRequest {
+  def request: RequestBuilder
+}
 
-  def apply(path: String) = 
-    new WebService(request / path)
-  
-  def apply(params: (String, String)*) = 
-    new WebService(request <<? Seq(params: _*))
-  
-  def apply(path: String, params: (String, String)*) = 
-    new WebService(request / path <<? Seq(params: _*))
-
-  def header(head: (String, String)*) = 
-    new WebService(request <:< Seq(head: _*))
-
+trait LiftJsonHandlers extends WebRequest {
   /** JSON Handlers */
-
-  def find = request.GET OK Json
   
-  def create(body: String) = request.POST.setBody(body) OK Json 
+  def find = request.GET OK as.lift.Json
   
-  def save(body: String) = request.PUT.setBody(body) OK Json
+  def create(body: String) = request.POST.setBody(body) OK as.lift.Json 
+  
+  def save(body: String) = request.PUT.setBody(body) OK as.lift.Json
 
-  def delete = request.DELETE OK Json
+  def delete = request.DELETE OK as.lift.Json
 }
