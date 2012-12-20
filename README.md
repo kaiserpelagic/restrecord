@@ -44,21 +44,43 @@ Below is a Twitter search api exmaple.
 
 api.twitter.com/1.1/search/tweets.json
 
-```scala
-import net.liftmodules.restrecord._
+```json
+{
 
+  "statuses": [
+    {
+      "coordinates": null,
+      "favorited": false,
+      "truncated": false,
+      "created_at": "Mon Sep 24 03:35:21 +0000 2012",
+      "id_str": "250075927172759552",
+      "text": "foobarbaz"
+    }
+  ]
+}   
+```
+
+```scala
 class Search extends RestRecord[Search] {
   def meta = Search
-  
+
   override val uri = "search" :: "tweets.json" :: Nil
+  
+  object statuses extends JSONSubRecordArrayField(this, Statuses)
+}
+
+object Search extends Search with RestMetaRecord[Search] { }
+
+class Statuses extends JSONRecord[Statuses] {
+  def meta = Statuses
 
   object text extends OptionalStringField(this, Empty)
 }
 
-object Search extends Search with RestMetaRecord[Search] { 
+object Statuses extends Statuses with JSONMetaRecord[Statuses] {
   // allows for flexible parsing of the json
   override def ignoreExtraJSONFields: Boolean = true
-  override def needAllJSONFields: Boolean = false
+  override def needAllJSONFields: Boolean = false 
 }
 ```
 
