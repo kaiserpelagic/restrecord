@@ -79,7 +79,7 @@ class Statuses extends RestRecord[Statuses] {
 
   // Defines the id in the resource path.
   // This will be used on Save and Deletes if the Box is Full
-  // Twitter required ".json" after the id even though they only respond with json !!!
+  // Twitter requires ".json" after the id even though they only respond with json !!!
   override def idPk = Full((id.is.toString + ".json"))
 
   object id extends IntField(this, 0)
