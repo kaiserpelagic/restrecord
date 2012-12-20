@@ -127,8 +127,6 @@ object Twitter {
 
 Creating, saving and deleting use the matching REST verbs and returns a Promise[Box[JValue]].
 
-RestRecordPk will include the id in the url on save and delete, but not on create since it technically doesn't exist yet.
-
 ```scala
 val createRes: Promise[Box[JValue]] = MyRest.create
 val saveRes = Promise[Box[JValue]] = MyRest.save
