@@ -37,6 +37,7 @@ To use oauth you'll need to add these properties into the defalt.props file
 ## Creating a RestRecord
 
 Below is a Twitter search api exmaple.
+api.twitter.com/1.1/search/tweets.json
 
 ```scala
 import net.liftmodules.restrecord._
