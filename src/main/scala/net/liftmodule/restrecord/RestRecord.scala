@@ -27,8 +27,8 @@ import com.ning.http.client.{RequestBuilder}
 object RestWebService {
   var host = "localhost"
   var context: Box[String] = Empty
-  var ssl = false
   
+  var ssl = false
   var oauth = false
   val requestToken = Props.get("oauthRequestToken")
   val tokenSecret =	Props.get("oauthTokenSecret")
@@ -92,7 +92,7 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] {
   def deleteEndpoint = _discoverEndpoint 
 
   // override this if you want to change this record's specific webservice
-  def myWebservice = Empty
+  def myWebservice: Box[WebService] = Empty
 
   def _discoverWebservice = myWebservice openOr RestWebService.webservice
 
