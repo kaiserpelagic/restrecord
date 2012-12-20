@@ -7,6 +7,10 @@ Uses <a href="http://dispatch.databinder.net/Dispatch.html">Databinder Dispatch'
 
 ## Setup and Configuration 
 
+### Getting Rest Record
+
+git clone https://github.com/kaiserpelagic/restrecord.git
+
 ### Configuration
 RestRecord can be configured by setting vars on the RestWebService object.
 
