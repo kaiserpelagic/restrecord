@@ -46,7 +46,6 @@ api.twitter.com/1.1/search/tweets.json
 
 ```json
 {
-
   "statuses": [
     {
       "coordinates": null,
