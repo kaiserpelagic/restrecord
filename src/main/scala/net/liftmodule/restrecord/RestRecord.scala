@@ -38,7 +38,8 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] {
   def meta: RestMetaRecord[MyType]
 
   /** 
-   *  Defines the RESTful id for this resource 
+   *  Defines the RESTful id for this resource
+   *  Empty implies this endoint does not use and id
    */
   def idPk: Box[Any] = Empty
   
@@ -49,7 +50,7 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] {
   val uri: List[String]
   
   /** 
-   *  Defines the RESTful suffix after id 
+   *  Defines the RESTful suffix after id, if it's present 
    *  Example: /uri/:id/uriSuffix
    */
   val uriSuffix: List[String] = Nil
@@ -63,16 +64,18 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] {
   def save: Promise[Box[JValue]] = meta.save(this)
   
   def delete: Promise[Box[JValue]] = meta.delete(this)
-  
+ 
+  private def _discoverEndpoint = idPk.map(buildUri(_)) openOr buildUri
+
   def findEndpoint(id: Any) = buildUri(id)
   
-  def findEndpoint = buildUri
+  def findEndpoint = _discoverEndpoint 
 
-  def createEndpoint = buildUri
+  def createEndpoint = buildUri // we should never have an id on creation
 
-  def saveEndpoint = idPk.map(buildUri(_)) openOr buildUri
+  def saveEndpoint = _discoverEndpoint 
 
-  def deleteEndpoint = buildUri idPk.map(buildUri(_)) openOr buildUri
+  def deleteEndpoint = _discoverEndpoint 
 
   /** override this method to handle api specific POST / PUT / DELETE responses **/
   def handleResponse(jv: JValue): Box[JValue] = Full(jv) 
