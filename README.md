@@ -35,11 +35,10 @@ To use oauth you'll need to add these properties into the defalt.props file
 
 
 ## Creating a RestRecord
-RestRecord comes in two basic flavors,: RestRecord and RestRecordPk. 
 
-Use RestRecordPk when your endpoint has an id and RestRecord when it does not.
+Below is a Twitter search api exmaple.
 
-The Twitter search api example below does not use an id so I'm using RestRecord.
+api.twitter.com/1.1/search/tweets.json
 
 ```scala
 import net.liftmodules.restrecord._
@@ -78,13 +77,12 @@ import net.liftmodules.restrecord._
 class ReTweet extends RestRecordPk[ReTweet] {
   def meta = ReTweet
   
-  // defines what the id is for this endpoint
-  def idPk: Any = id.is
+  // Defines what the id is for this endpoint.
+  // Twitter requires ".json" appended to the id even though json is the only option.
+  // If the resource has a path after the id override the suffix val.
+  def idPk: Any = (id.is.toString) + ".json"
   
   override val uri = "statuses" :: "retweets" :: Nil
-  
-  // defines what comes after the id in the url
-  override val uriSuffix = ".json" :: Nil
   
   object id extends IntField(this, 0)
   object retweet_count extends OptionIntField(this, Empty)
@@ -100,10 +98,10 @@ object ReTweet extends ReTweet with RestMetaRecord[ReTweet] {
 
 ```scala
   //api.twitter.com/1.1/statuses/retweets/21947795900469248.json
-  val retweet: Promise[Box[ReTweet]] = ReTweet.find(21947795900469248) 
+  val retweet: Promise[Box[ReTweet]] = ReTweet.find(21947795900469248.toString + ".json") 
   
   //api.twitter.com/1.1/statuses/retweets/21947795900469248.json?count=5&trim_user=t
-  val retweet2: Promise[Box[ReTweet]] = ReTweet.find(21947795900469248, ("count", "5), ("trim_user", "t"))
+  val retweet2: Promise[Box[ReTweet]] = ReTweet.find(21947795900469248.toString + ".json", ("count", "5"), ("trim_user", "t"))
 ```
 
 HTTP failures are captured in the Box as a Failure. The caller is responsible for handling them 
