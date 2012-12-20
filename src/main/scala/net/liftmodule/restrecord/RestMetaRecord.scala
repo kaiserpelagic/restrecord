@@ -51,7 +51,7 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   def createFrom(inst: BaseRecord, svc: WebService): Promise[Box[JValue]] = { 
     foreachCallback(inst, _.beforeCreate)
     try {
-      withHttp(http, oauth(svc url(inst.createEndpoint) create(inst.asJValue)), fullIdent)
+      withHttp(http, oauth(svc url(inst.createEndpoint)) create(inst.asJValue), fullIdent)
     } finally {
       foreachCallback(inst, _.afterCreate)
     }
@@ -63,7 +63,7 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   def saveFrom(inst: BaseRecord, svc: WebService): Promise[Box[JValue]] = {
     foreachCallback(inst, _.beforeSave)
     try {
-      withHttp(http, oauth(svc url(inst.saveEndpoint) save(inst.asJValue)), fullIdent)
+      withHttp(http, oauth(svc url(inst.saveEndpoint)) save(inst.asJValue), fullIdent)
     } finally {
       foreachCallback(inst, _.afterSave)
     }
@@ -75,7 +75,7 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   def deleteFrom(inst: BaseRecord, svc: WebService): Promise[Box[JValue]] = {
     foreachCallback(inst, _.beforeDelete)
     try { 
-      withHttp(http, oauth(svc url(inst.deleteEndpoint) delete), fullIdent)
+      withHttp(http, oauth(svc url(inst.deleteEndpoint)) delete, fullIdent)
     } finally {
       foreachCallback(inst, _.afterDelete)
     }
