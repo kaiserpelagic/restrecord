@@ -80,9 +80,9 @@ class Statuses extends RestRecord[Statuses] {
   // Defines the id in the resource path.
   // This will be used on Save and Deletes if the Box is Full
   // Twitter requires ".json" after the id even though they only respond with json !!!
-  override def idPk = Full((id.is.toString + ".json"))
+  override def idPk = Full(id_str.is + ".json")
 
-  object id extends IntField(this, 0)
+  object id_str extends StringField(this, "")
   object text extends OptionalStringField(this, Empty)
 }
 
@@ -136,9 +136,9 @@ object Twitter {
 Creating, saving and deleting use the matching REST verbs and returns a Promise[Box[JValue]].
 
 ```scala
-val createRes: Promise[Box[JValue]] = MyRest.create
-val saveRes = Promise[Box[JValue]] = MyRest.save
-val deleteRes = Promise[Box[JValue]] = MyRest.delete
+val createRes: Promise[Box[JValue]] = MyRest.create  // POST
+val saveRes = Promise[Box[JValue]] = MyRest.save     // PUT
+val deleteRes = Promise[Box[JValue]] = MyRest.delete // DELETE
 ```
 
 ### Example Project
