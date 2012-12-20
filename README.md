@@ -35,11 +35,8 @@ To use oauth you'll need to add these properties into the defalt.props file
 
 
 ## Creating a RestRecord
-RestRecord comes in two basic flavors,: RestRecord and RestRecordPk. 
 
-Use RestRecordPk when your endpoint has an id and RestRecord when it does not.
-
-The Twitter search api example below does not use an id so I'm using RestRecord.
+Below is a Twitter search api exmaple.
 
 ```scala
 import net.liftmodules.restrecord._
