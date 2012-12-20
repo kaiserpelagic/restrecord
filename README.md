@@ -1,4 +1,4 @@
-Rest Record
+RestRecord
 ===========
 
 A Lift Record interface for RESTful apis
@@ -7,12 +7,12 @@ Uses <a href="http://dispatch.databinder.net/Dispatch.html">Databinder Dispatch'
 
 ## Setup and Configuration 
 
-### Getting Rest Record
+### Getting RestRecord
 
 git clone https://github.com/kaiserpelagic/restrecord.git
 
 ### Configuration
-RestRecord can be configured by setting vars on the RestWebService object.
+RestRecord can be configured by setting vars on the RestWebService object in Boot.scala.
 
 * host: String = "api.twitter.com"
 * context: Box[String] =  Full("1.1")
@@ -40,10 +40,9 @@ To use oauth you'll need to add these properties into the defalt.props file
 
 ## Creating a RestRecord
 
-Below is a Twitter search api exmaple.
+Below is an example of using Twitter search api (api.twitter.com/1.1/search/tweets.json?q=lift_framework) with ResetRecord. 
 
-api.twitter.com/1.1/search/tweets.json
-
+Here is a condensed json response from the search api:
 ```json
 {
   "statuses": [
@@ -59,10 +58,13 @@ api.twitter.com/1.1/search/tweets.json
 }   
 ```
 
+The Search api uses the same json as the Status api. I've modeled that one as well becuse the Status api uses an id in the api path.
+
 ```scala
 class Search extends RestRecord[Search] {
   def meta = Search
 
+  // defines the search resource endpoint
   override val uri = "search" :: "tweets.json" :: Nil
   
   object statuses extends JSONSubRecordArrayField(this, Statuses)
@@ -70,9 +72,17 @@ class Search extends RestRecord[Search] {
 
 object Search extends Search with RestMetaRecord[Search] { }
 
-class Statuses extends JSONRecord[Statuses] {
+class Statuses extends RestRecord[Statuses] {
   def meta = Statuses
 
+  override val uri = "statuses" :: "show" :: Nil
+
+  // Defines the id in the resource path.
+  // This will be used on Save and Deletes if the Box is Full
+  // Twitter required ".json" after the id even though they only respond with json !!!
+  override def idPk = Full((id.is.toString + ".json"))
+
+  object id extends IntField(this, 0)
   object text extends OptionalStringField(this, Empty)
 }
 
@@ -82,51 +92,24 @@ object Statuses extends Statuses with JSONMetaRecord[Statuses] {
   override def needAllJSONFields: Boolean = false 
 }
 ```
+RestRecord uses JSONRecord (which includes JSONSubRecordArrayField used above) from the couchdb lift module. Unfortunately, couchdb imports an older version of Dispatch which conflicts with the newer version used in RestRecord.
 
-### Finding a Record (GET)
+My work around for now is to copy JSONRecord into the RestRecord package. Hopefully, in the future JSONRecord will be folded into lift Record.
+
+### Finding a Tweet (GET)
 
 ```scala
-  //api.twitter.com/1.1/search/tweets.json?q=lift_framework
+  // api.twitter.com/1.1/search/tweets.json?q=lift_framework
   val search: Promise[Box[Search]] = Search.find(("q", "lift framework")) 
 
   // assert that a promised value be available at any time with the use of apply; this is blocking
   val result: Box[Search] = search()
-```
 
-Twitter's retweet api has an id so lets take a look at modeling it
-
-exmaple: api.twitter.com/1.1/statuses/retweets/21947795900469248.json
-```scala
-import net.liftmodules.restrecord._
-
-class ReTweet extends RestRecordPk[ReTweet] {
-  def meta = ReTweet
+  //api.twitter.com/1.1/statuses/show/21947795900469248.json
+  val status: Promise[Box[ReTweet]] = Status.find(21947795900469248.toString + ".json") 
   
-  // Defines what the id is for this endpoint.
-  // Twitter requires ".json" appended to the id even though json is the only option.
-  // If the resource has a path after the id override the suffix val.
-  def idPk: Any = (id.is.toString) + ".json"
-  
-  override val uri = "statuses" :: "retweets" :: Nil
-  
-  object id extends IntField(this, 0)
-  object retweet_count extends OptionIntField(this, Empty)
-}
-
-object ReTweet extends ReTweet with RestMetaRecord[ReTweet] { 
-  // allows for flexible parsing of the json
-  override def ignoreExtraJSONFields: Boolean = true
-  override def needAllJSONFields: Boolean = false
-}
-```
-### Finding a Record (GET)
-
-```scala
-  //api.twitter.com/1.1/statuses/retweets/21947795900469248.json
-  val retweet: Promise[Box[ReTweet]] = ReTweet.find(21947795900469248.toString + ".json") 
-  
-  //api.twitter.com/1.1/statuses/retweets/21947795900469248.json?count=5&trim_user=t
-  val retweet2: Promise[Box[ReTweet]] = ReTweet.find(21947795900469248.toString + ".json", ("count", "5"), ("trim_user", "t"))
+  //api.twitter.com/1.1/statuses/show/21947795900469248.json?trim_user=t
+  val status2: Promise[Box[ReTweet]] = Status.find(21947795900469248.toString + ".json", ("trim_user", "t"))
 ```
 
 HTTP failures are captured in the Box as a Failure. The caller is responsible for handling them 
