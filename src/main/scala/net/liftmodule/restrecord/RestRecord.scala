@@ -27,27 +27,6 @@ object RestWebService {
   def webservice = WebService(url)
 }
 
-trait RestRecordPk[MyType <: RestRecordPk[MyType]] extends RestRecord[MyType] {
-  self: MyType =>
-  
-  def meta: RestMetaRecordPk[MyType]
-
-  def idPK: Any
-
-  /** 
-   *  Defines the RESTful suffix after id 
-   *  Example: /uri/:id/uriSuffix
-   */
-  val uriSuffix: List[String] = Nil
-  
-  def buildUri(id: Any): List[String] = uri ::: List(id.toString) ::: uriSuffix
-  
-  override def findEndpoint(id: Any) = buildUri(id)
-  
-  override def saveEndpoint = buildUri(idPK)
-
-  override def deleteEndpoint = buildUri(idPK)
-}
 
 trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] {
 
@@ -59,12 +38,25 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] {
   def meta: RestMetaRecord[MyType]
 
   /** 
+   *  Defines the RESTful id for this resource 
+   */
+  def idPk: Box[Any] = Empty
+  
+  /** 
    *  Defines the RESTful endpoint for this resource 
    *  Examples: /foo or /foo/bar 
    */
   val uri: List[String]
   
-  def buildUri: List[String] = uri
+  /** 
+   *  Defines the RESTful suffix after id 
+   *  Example: /uri/:id/uriSuffix
+   */
+  val uriSuffix: List[String] = Nil
+  
+  def buildUri: List[String] = uri ::: uriSuffix
+  
+  def buildUri(id: Any): List[String] = uri ::: List(id.toString) ::: uriSuffix
   
   def create: Promise[Box[JValue]] = meta.create(this)
 
@@ -72,13 +64,15 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] {
   
   def delete: Promise[Box[JValue]] = meta.delete(this)
   
+  def findEndpoint(id: Any) = buildUri(id)
+  
   def findEndpoint = buildUri
 
   def createEndpoint = buildUri
 
-  def saveEndpoint = buildUri
+  def saveEndpoint = idPk.map(buildUri(_)) openOr buildUri
 
-  def deleteEndpoint = buildUri
+  def deleteEndpoint = buildUri idPk.map(buildUri(_)) openOr buildUri
 
   /** override this method to handle api specific POST / PUT / DELETE responses **/
   def handleResponse(jv: JValue): Box[JValue] = Full(jv) 
