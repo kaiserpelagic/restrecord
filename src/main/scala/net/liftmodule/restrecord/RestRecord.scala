@@ -51,12 +51,6 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] {
    *  Refine meta to require a RestMetaRecord 
    */
   def meta: RestMetaRecord[MyType]
-
-  /** 
-   *  Defines the RESTful id for this resource
-   *  Empty implies this endoint does not use and id
-   */
-  def idPk: Box[Any] = Empty
   
   /** 
    *  Defines the RESTful endpoint for this resource 
@@ -65,29 +59,34 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] {
   val uri: List[String]
   
   /** 
-   *  Defines the RESTful suffix after id, if it's present 
-   *  Example: /uri/:id/uriSuffix
+   *  Defines the RESTful id for this resource
+   *  Empty implies this endoint does not use and id
+   *  Used on Saves and Deletes 
    */
-  val uriSuffix: List[String] = Nil
+  def idPk: Box[Any] = Empty
+ 
+  /** 
+   *  Defines the RESTful suffix after id 
+   *  Example: /uri/:id/suffix
+   */
+  val suffix: List[String] = Nil
   
-  def buildUri: List[String] = uri ::: uriSuffix
-  
-  def buildUri(id: Any): List[String] = uri ::: List(id.toString) ::: uriSuffix
+  def uri(id: Any): List[String] = uri ::: List(id.toString) ::: suffix
   
   def create: Promise[Box[JValue]] = meta.create(this)
 
   def save: Promise[Box[JValue]] = meta.save(this)
   
   def delete: Promise[Box[JValue]] = meta.delete(this)
- 
-  private def _discoverEndpoint = idPk.map(buildUri(_)) openOr buildUri
 
-  def findEndpoint(id: Any) = buildUri(id)
+  def findEndpoint(id: Any) = uri(id)
   
-  def findEndpoint = _discoverEndpoint 
+  def findEndpoint = uri 
 
-  def createEndpoint = buildUri // we should never have an id on creation
+  def createEndpoint = uri // we should never have an id on creation
 
+  private def _discoverEndpoint = idPk.map(uri(_)) openOr uri
+  
   def saveEndpoint = _discoverEndpoint 
 
   def deleteEndpoint = _discoverEndpoint 
