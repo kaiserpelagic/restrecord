@@ -44,9 +44,11 @@ To use oauth you'll need to add these properties into the props file
 
 ## Creating a RestRecord
 
-Below is an example of using Twitter search api [api.twitter.com/1.1/search/tweets.json?q=lift_framework] with ResetRecord. 
+Below is an example of using Twitter's search api with ResetRecord. 
 
-Here is a condensed json response from the search api:
+example GET request api.twitter.com/1.1/search/tweets.json?q=lift_framework
+
+Here is a condensed json response:
 ```json
 {
   "statuses": [
