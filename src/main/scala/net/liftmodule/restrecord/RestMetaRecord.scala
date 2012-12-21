@@ -32,8 +32,10 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   
   val http = Http 
 
+  def find(query: (String, String)*): Promise[Box[BaseRecord]] = 
+    findFrom(webservice, findEndpoint(id), query: _*)
   
-  def find(id: Any, query: (String, String)*): Promise[Box[BaseRecord]] = 
+  def find(id: String, query: (String, String)*): Promise[Box[BaseRecord]] = 
     findFrom(webservice, findEndpoint(id), query: _*)
   
   def findFrom(svc: WebService, path: List[String], 
@@ -102,7 +104,7 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
 }
 
 trait Oauth {
-  import RestWebService._
+  import RestRecordConfig._
   
   val oauth_? = oauth
   val consumer = new ConsumerKey(consumerKey.getOrElse(""), consumerSecret.getOrElse(""))
