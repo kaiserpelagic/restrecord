@@ -25,17 +25,18 @@ Configuration for Twitter's api v1.1 using oauth
 object Boot.scala {
   etc ...
    
-  RestWebService.host = "api.twitter.com"
-  RestWebService.context = Full("1.1")
-  RestWebService.oauth = true
+  RestRecordConfig.host = "api.twitter.com"
+  RestRecordConfig.context = Full("1.1")
+  RestRecordConfig.oauth = true
+  RestRecord.init()
 }
 ```
 To use oauth you'll need to add these properties into the defalt.props file
 
-* oauthRequestToken = my_twitter_oauth_token
-* oauthTokenSecret = my_twitter_oauth_token_secret
-* oauthConsumerKey = my_twitter_consumer_key
-* oauthConsumerSecret = my_twitter_consumer_secret
+* twitter.oauthRequestToken = my_twitter_oauth_token
+* twitter.oauthTokenSecret = my_twitter_oauth_token_secret
+* twitter.oauthConsumerKey = my_twitter_consumer_key
+* twitter.oauthConsumerSecret = my_twitter_consumer_secret
 
 
 ## Creating a RestRecord
