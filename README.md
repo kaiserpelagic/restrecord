@@ -12,7 +12,7 @@ Uses <a href="http://dispatch.databinder.net/Dispatch.html">Databinder Dispatch'
 git clone https://github.com/kaiserpelagic/restrecord.git
 
 ### Configuration
-RestRecord can be configured by setting vars on the RestWebService object in Boot.scala.
+RestRecord can be configured by setting vars on the RestRecordConfig object in Boot.scala.
 
 * host: String = "api.twitter.com"
 * context: Box[String] =  Full("1.1")
@@ -22,27 +22,33 @@ RestRecord can be configured by setting vars on the RestWebService object in Boo
 Configuration for Twitter's api v1.1 using oauth
 
 ```scala
-object Boot.scala {
+import net.liftmodules.RestRecord
+import net.liftmodules.restrecord.{RestRecordConfig}
+
+object Boot {
   etc ...
    
-  RestWebService.host = "api.twitter.com"
-  RestWebService.context = Full("1.1")
-  RestWebService.oauth = true
+  RestRecordConfig.host = "api.twitter.com"
+  RestRecordConfig.context = Full("1.1")
+  RestRecordConfig.oauth = true
+  RestRecord.init()
 }
 ```
-To use oauth you'll need to add these properties into the defalt.props file
+To use oauth you'll need to add these properties into the props file
 
-* oauthRequestToken = my_twitter_oauth_token
-* oauthTokenSecret = my_twitter_oauth_token_secret
-* oauthConsumerKey = my_twitter_consumer_key
-* oauthConsumerSecret = my_twitter_consumer_secret
+* twitter.oauthRequestToken = my_twitter_oauth_token
+* twitter.oauthTokenSecret = my_twitter_oauth_token_secret
+* twitter.oauthConsumerKey = my_twitter_consumer_key
+* twitter.oauthConsumerSecret = my_twitter_consumer_secret
 
 
 ## Creating a RestRecord
 
-Below is an example of using Twitter search api (api.twitter.com/1.1/search/tweets.json?q=lift_framework) with ResetRecord. 
+Below is an example of using Twitter's search api with ResetRecord. 
 
-Here is a condensed json response from the search api:
+example GET request api.twitter.com/1.1/search/tweets.json?q=lift_framework
+
+Here is a condensed json response:
 ```json
 {
   "statuses": [
@@ -86,11 +92,7 @@ class Statuses extends RestRecord[Statuses] {
   object text extends OptionalStringField(this, Empty)
 }
 
-object Statuses extends Statuses with RestMetaRecord[Statuses] {
-  // allows for flexible parsing of the json
-  override def ignoreExtraJSONFields: Boolean = true
-  override def needAllJSONFields: Boolean = false 
-}
+object Statuses extends Statuses with RestMetaRecord[Statuses] { }
 ```
 RestRecord uses JSONRecord (which includes JSONSubRecordArrayField used above) from the couchdb lift module. Unfortunately, couchdb imports an older version of Dispatch which conflicts with the newer version used in RestRecord.
 
@@ -105,11 +107,15 @@ My work around for now is to copy JSONRecord into the RestRecord package. Hopefu
   // assert that a promised value be available at any time with the use of apply; this is blocking
   val result: Box[Search] = search()
 
+```
+### Finding a Status (GET)
+
+```scala
   //api.twitter.com/1.1/statuses/show/21947795900469248.json
-  val status: Promise[Box[ReTweet]] = Status.find(21947795900469248.toString + ".json") 
+  val status: Promise[Box[Status]] = Status.find(21947795900469248.toString + ".json") 
   
   //api.twitter.com/1.1/statuses/show/21947795900469248.json?trim_user=t
-  val status2: Promise[Box[ReTweet]] = Status.find(21947795900469248.toString + ".json", ("trim_user", "t"))
+  val status2: Promise[Box[Status]] = Status.find(21947795900469248.toString + ".json", ("trim_user", "t"))
 ```
 
 HTTP failures are captured in the Box as a Failure. The caller is responsible for handling them 
