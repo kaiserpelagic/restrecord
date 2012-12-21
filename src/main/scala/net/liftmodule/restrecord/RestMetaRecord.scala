@@ -35,7 +35,10 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   def find(query: (String, String)*): Promise[Box[BaseRecord]] = 
     findFrom(webservice, findEndpoint, query: _*)
   
-  def find(id: String, query: (String, String)*): Promise[Box[BaseRecord]] = 
+  def find(id: String, query: (String, String)*): Promise[Box[BaseRecord]] =
+    findFrom(webservice, findEndpoint(id), query: _*)
+  
+  def find(id: Int, query: (String, String)*): Promise[Box[BaseRecord]] =
     findFrom(webservice, findEndpoint(id), query: _*)
   
   def findFrom(svc: WebService, path: List[String], 
