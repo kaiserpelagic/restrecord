@@ -22,6 +22,9 @@ RestRecord can be configured by setting vars on the RestRecordConfig object in B
 Configuration for Twitter's api v1.1 using oauth
 
 ```scala
+import net.liftmodules.RestRecord
+import net.liftmodules.restrecord.{RestRecordConfig}
+
 object Boot {
   etc ...
    
