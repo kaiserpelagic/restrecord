@@ -24,16 +24,16 @@ import dispatch._
 import dispatch.oauth._
 import com.ning.http.client.{RequestBuilder}
 
-object RestWebService {
+object RestRecordConfig {
   var host = "localhost"
   var context: Box[String] = Empty
   
   var ssl = false
   var oauth = false
-  val requestToken = Props.get("oauthRequestToken")
-  val tokenSecret =	Props.get("oauthTokenSecret")
-  val consumerKey = Props.get("oauthConsumerKey")
-  val consumerSecret = Props.get("oauthConsumerSecret") 
+  val requestToken = Props.get("twitter.oauthRequestToken")
+  val tokenSecret =	Props.get("twitter.oauthTokenSecret")
+  val consumerKey = Props.get("twitter.oauthConsumerKey")
+  val consumerSecret = Props.get("twitter.oauthConsumerSecret") 
 
   def req = { 
     val _req = :/(host + (context.map("/" + _) openOr ""))
@@ -94,7 +94,7 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] {
   // override this if you want to change this record's specific webservice
   def myWebservice: Box[WebService] = Empty
 
-  def _discoverWebservice = myWebservice openOr RestWebService.webservice
+  def _discoverWebservice = myWebservice openOr RestRecordConfig.webservice
 
   def webservice = _discoverWebservice 
 }
