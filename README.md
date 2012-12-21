@@ -44,7 +44,7 @@ To use oauth you'll need to add these properties into the props file
 
 ## Creating a RestRecord
 
-Below is an example of using Twitter search api (api.twitter.com/1.1/search/tweets.json?q=lift_framework) with ResetRecord. 
+Below is an example of using Twitter search api [api.twitter.com/1.1/search/tweets.json?q=lift_framework] with ResetRecord. 
 
 Here is a condensed json response from the search api:
 ```json
@@ -109,11 +109,15 @@ My work around for now is to copy JSONRecord into the RestRecord package. Hopefu
   // assert that a promised value be available at any time with the use of apply; this is blocking
   val result: Box[Search] = search()
 
+```
+### Finding a Status (GET)
+
+```scala
   //api.twitter.com/1.1/statuses/show/21947795900469248.json
-  val status: Promise[Box[ReTweet]] = Status.find(21947795900469248.toString + ".json") 
+  val status: Promise[Box[Status]] = Status.find(21947795900469248.toString + ".json") 
   
   //api.twitter.com/1.1/statuses/show/21947795900469248.json?trim_user=t
-  val status2: Promise[Box[ReTweet]] = Status.find(21947795900469248.toString + ".json", ("trim_user", "t"))
+  val status2: Promise[Box[Status]] = Status.find(21947795900469248.toString + ".json", ("trim_user", "t"))
 ```
 
 HTTP failures are captured in the Box as a Failure. The caller is responsible for handling them 
