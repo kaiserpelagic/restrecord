@@ -22,7 +22,7 @@ RestRecord can be configured by setting vars on the RestRecordConfig object in B
 Configuration for Twitter's api v1.1 using oauth
 
 ```scala
-object Boot.scala {
+object Boot {
   etc ...
    
   RestRecordConfig.host = "api.twitter.com"
