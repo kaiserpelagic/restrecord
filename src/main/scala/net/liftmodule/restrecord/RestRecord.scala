@@ -30,10 +30,10 @@ object RestRecordConfig {
   
   var ssl = false
   var oauth = false
-  val requestToken = Props.get("twitter.oauthRequestToken")
-  val tokenSecret =	Props.get("twitter.oauthTokenSecret")
-  val consumerKey = Props.get("twitter.oauthConsumerKey")
-  val consumerSecret = Props.get("twitter.oauthConsumerSecret") 
+  val requestToken = Props.get("restrecord.oauthRequestToken")
+  val tokenSecret =	Props.get("restrecord.oauthTokenSecret")
+  val consumerKey = Props.get("restrecord.oauthConsumerKey")
+  val consumerSecret = Props.get("restrecord.oauthConsumerSecret") 
 
   def req = { 
     val _req = :/(host + (context.map("/" + _) openOr ""))
