@@ -34,7 +34,7 @@ object Boot {
   RestRecord.init()
 }
 ```
-To use oauth you'll need to add these properties into the defalt.props file
+To use oauth you'll need to add these properties into the props file
 
 * twitter.oauthRequestToken = my_twitter_oauth_token
 * twitter.oauthTokenSecret = my_twitter_oauth_token_secret
