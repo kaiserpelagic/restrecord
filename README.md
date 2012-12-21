@@ -92,11 +92,7 @@ class Statuses extends RestRecord[Statuses] {
   object text extends OptionalStringField(this, Empty)
 }
 
-object Statuses extends Statuses with RestMetaRecord[Statuses] {
-  // allows for flexible parsing of the json
-  override def ignoreExtraJSONFields: Boolean = true
-  override def needAllJSONFields: Boolean = false 
-}
+object Statuses extends Statuses with RestMetaRecord[Statuses] { }
 ```
 RestRecord uses JSONRecord (which includes JSONSubRecordArrayField used above) from the couchdb lift module. Unfortunately, couchdb imports an older version of Dispatch which conflicts with the newer version used in RestRecord.
 
