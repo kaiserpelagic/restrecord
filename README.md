@@ -12,7 +12,7 @@ Uses <a href="http://dispatch.databinder.net/Dispatch.html">Databinder Dispatch'
 git clone https://github.com/kaiserpelagic/restrecord.git
 
 ### Configuration
-RestRecord can be configured by setting vars on the RestWebService object in Boot.scala.
+RestRecord can be configured by setting vars on the RestRecordConfig object in Boot.scala.
 
 * host: String = "api.twitter.com"
 * context: Box[String] =  Full("1.1")
