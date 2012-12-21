@@ -33,7 +33,7 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   val http = Http 
 
   def find(query: (String, String)*): Promise[Box[BaseRecord]] = 
-    findFrom(webservice, findEndpoint(id), query: _*)
+    findFrom(webservice, findEndpoint, query: _*)
   
   def find(id: String, query: (String, String)*): Promise[Box[BaseRecord]] = 
     findFrom(webservice, findEndpoint(id), query: _*)
