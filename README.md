@@ -36,10 +36,10 @@ object Boot {
 ```
 To use oauth you'll need to add these properties into the props file
 
-* twitter.oauthRequestToken = my_twitter_oauth_token
-* twitter.oauthTokenSecret = my_twitter_oauth_token_secret
-* twitter.oauthConsumerKey = my_twitter_consumer_key
-* twitter.oauthConsumerSecret = my_twitter_consumer_secret
+* restrecord.oauthRequestToken = my_twitter_oauth_token
+* restrecord.oauthTokenSecret = my_twitter_oauth_token_secret
+* restrecord.oauthConsumerKey = my_twitter_consumer_key
+* restrecord.oauthConsumerSecret = my_twitter_consumer_secret
 
 
 ## Creating a RestRecord
