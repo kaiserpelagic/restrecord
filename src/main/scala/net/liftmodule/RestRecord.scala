@@ -5,6 +5,6 @@ import _root_.net.liftweb.http._
 object RestRecord {
 
   def init() {
-    LiftRules.addToPackages("net.liftmodules.RestRecord")
+    LiftRules.addToPackages("net.liftmodules.restrecord")
   }
 }
