@@ -7,9 +7,22 @@ Uses <a href="http://dispatch.databinder.net/Dispatch.html">Databinder Dispatch'
 
 ## Setup and Configuration 
 
-### Getting RestRecord
+### Integrating into your project
 
-git clone https://github.com/kaiserpelagic/restrecord.git
+Add the following to resolvers
+
+```
+resolvers ++= Seq(
+  "snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",
+  "releases" at "http://oss.sonatype.org/content/repositories/releases"
+)
+```
+
+In build.sbt add this to libraryDependencies
+
+```
+"net.liftmodules" %% "restrecord" % (liftVersion + "-1.1-SNAPSHOT") 
+```
 
 ### Configuration
 RestRecord can be configured by setting vars on the RestRecordConfig object in Boot.scala.
