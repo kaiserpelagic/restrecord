@@ -7,9 +7,22 @@ Uses <a href="http://dispatch.databinder.net/Dispatch.html">Databinder Dispatch'
 
 ## Setup and Configuration 
 
-### Getting RestRecord
+### Integrating into your project
 
-git clone https://github.com/kaiserpelagic/restrecord.git
+Add the following to resolvers
+
+```
+resolvers ++= Seq(
+  "snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",
+  "releases" at "http://oss.sonatype.org/content/repositories/releases"
+)
+```
+
+In build.sbt add this to libraryDependencies
+
+```
+"net.liftmodules" %% "restrecord" % (liftVersion + "-1.1-SNAPSHOT") 
+```
 
 ### Configuration
 RestRecord can be configured by setting vars on the RestRecordConfig object in Boot.scala.
@@ -36,10 +49,10 @@ object Boot {
 ```
 To use oauth you'll need to add these properties into the props file
 
-* twitter.oauthRequestToken = my_twitter_oauth_token
-* twitter.oauthTokenSecret = my_twitter_oauth_token_secret
-* twitter.oauthConsumerKey = my_twitter_consumer_key
-* twitter.oauthConsumerSecret = my_twitter_consumer_secret
+* restrecord.oauthRequestToken = my_twitter_oauth_token
+* restrecord.oauthTokenSecret = my_twitter_oauth_token_secret
+* restrecord.oauthConsumerKey = my_twitter_consumer_key
+* restrecord.oauthConsumerSecret = my_twitter_consumer_secret
 
 
 ## Creating a RestRecord
