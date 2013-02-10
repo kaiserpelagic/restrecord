@@ -21,7 +21,7 @@ resolvers ++= Seq(
 In build.sbt add this to libraryDependencies
 
 ```
-"net.liftmodules" %% "restrecord" % (liftVersion + "-1.1-SNAPSHOT") 
+"net.liftmodules" %% "restrecord" % (liftVersion + "-1.1") 
 ```
 
 ### Configuration
@@ -84,7 +84,7 @@ class Search extends RestRecord[Search] {
   def meta = Search
 
   // defines the search resource endpoint
-  override val uri = "search" :: "tweets.json" :: Nil
+  val uri = "search" :: "tweets.json" :: Nil
   
   object statuses extends JSONSubRecordArrayField(this, Statuses)
 }
@@ -94,7 +94,7 @@ object Search extends Search with RestMetaRecord[Search] { }
 class Statuses extends RestRecord[Statuses] {
   def meta = Statuses
 
-  override val uri = "statuses" :: "show" :: Nil
+  val uri = "statuses" :: "show" :: * :: Nil
 
   // Defines the id in the resource path.
   // This will be used on Save and Deletes if the Box is Full
