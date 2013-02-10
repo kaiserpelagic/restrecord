@@ -26,7 +26,7 @@ import com.ning.http.client.{RequestBuilder, Request}
 import com.ning.http.client.oauth._
 
 trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]] 
-  extends JSONMetaRecord[BaseRecord] with Oauth {
+  extends JSONMetaRecord[BaseRecord] {
 
   self: BaseRecord =>
   
@@ -104,12 +104,4 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
 
   implicit def implyRequestBuilderToWebService(builder: RequestBuilder): WebService =
     new WebService(builder)
-}
-
-trait Oauth {
-  import RestRecordConfig._
-  
-  val oauth_? = oauth
-  val consumer = new ConsumerKey(consumerKey.getOrElse(""), consumerSecret.getOrElse(""))
-  val token = new RequestToken(requestToken.getOrElse(""), tokenSecret.getOrElse(""))
 }

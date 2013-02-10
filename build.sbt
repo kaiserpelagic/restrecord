@@ -1,8 +1,8 @@
 name := "restrecord"
 
-liftVersion <<= liftVersion ?? "2.5-SNAPSHOT"
+liftVersion <<= liftVersion ?? "2.5-M4"
 
-version <<= liftVersion apply { _ + "-1.1-SNAPSHOT" }
+version <<= liftVersion apply { _ + "-1.1" }
 
 organization := "net.liftmodules"
  
@@ -16,8 +16,8 @@ resolvers += "Java.net Maven2 Repository" at "http://download.java.net/maven/2/"
 
 libraryDependencies <++= liftVersion { v =>
   "net.liftweb"             %% "lift-record"        % v        % "compile->default" ::
-  "net.databinder.dispatch" %% "dispatch-core"      % "0.9.3"  % "compile->default" ::
-  "net.databinder.dispatch" %% "dispatch-lift-json" % "0.9.3"  % "compile->default" ::
+  "net.databinder.dispatch" %% "dispatch-core"      % "0.9.4"  % "compile->default" ::
+  "net.databinder.dispatch" %% "dispatch-lift-json" % "0.9.4"  % "compile->default" ::
    Nil
 }
 

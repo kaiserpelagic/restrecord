@@ -21,11 +21,13 @@ import net.liftweb.record.{MetaRecord, Record}
 import net.liftweb.util.Props 
 
 import dispatch._
-import dispatch.oauth._
+//import dispatch.oauth._
 import com.ning.http.client.{RequestBuilder}
+import com.ning.http.client.oauth._
 
 object RestRecordConfig {
-  var host = "localhost"
+  var host: String = "localhost"
+  var port: Box[Int] = Empty
   var context: Box[String] = Empty
   
   var ssl = false
@@ -35,15 +37,17 @@ object RestRecordConfig {
   val consumerKey = Props.get("restrecord.oauthConsumerKey")
   val consumerSecret = Props.get("restrecord.oauthConsumerSecret") 
 
-  def req = { 
-    val _req = :/(host + (context.map("/" + _) openOr ""))
+  def req = {
+    val ctx = host + (context.map("/" + _) openOr "")
+    val _req = port.map(:/(ctx, _)) openOr :/(ctx) 
     if (ssl) _req.secure else _req
   }
 
   def webservice = new WebService(req)
 }
 
-trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] {
+trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] 
+  with RestEndpoint with Oauth {
 
   self: MyType =>
   
@@ -53,26 +57,12 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] {
   def meta: RestMetaRecord[MyType]
   
   /** 
-   *  Defines the RESTful endpoint for this resource 
-   *  Examples: /foo or /foo/bar 
-   */
-  val uri: List[String]
-  
-  /** 
    *  Defines the RESTful id for this resource
    *  Empty implies this endoint does not use and id
    *  Used on Saves and Deletes 
    */
   def idPk: Box[Any] = Empty
  
-  /** 
-   *  Defines the RESTful suffix after id 
-   *  Example: /uri/:id/suffix
-   */
-  val suffix: List[String] = Nil
-  
-  def uri(id: Any): List[String] = uri ::: List(id.toString) ::: suffix
-  
   def create: Promise[Box[JValue]] = meta.create(this)
 
   def save: Promise[Box[JValue]] = meta.save(this)
@@ -84,17 +74,50 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] {
   def findEndpoint = uri 
 
   def createEndpoint = uri // we should never have an id on creation
+  
+  def saveEndpoint = _discoverEndpoint
+
+  def deleteEndpoint = _discoverEndpoint
+
+  // override this if you want to change this record's specific webservice from the default in config
+  def webservice: WebService = _discoverWebservice 
+  
+  def _webservice = Empty
+
+  def _discoverWebservice = _webservice openOr RestRecordConfig.webservice 
 
   private def _discoverEndpoint = idPk.map(uri(_)) openOr uri
   
-  def saveEndpoint = _discoverEndpoint 
+  // override this is you something other than the default in config 
+  val oauth_? = RestRecordConfig.oauth
+}
 
-  def deleteEndpoint = _discoverEndpoint 
+trait Oauth {
+  val consumer = new ConsumerKey(RestRecordConfig.consumerKey.getOrElse(""), RestRecordConfig.consumerSecret.getOrElse(""))
+  val token = new RequestToken(RestRecordConfig.requestToken.getOrElse(""), RestRecordConfig.tokenSecret.getOrElse(""))
+}
 
-  // override this if you want to change this record's specific webservice
-  def myWebservice: Box[WebService] = Empty
+import scala.collection.mutable.ListBuffer
 
-  def _discoverWebservice = myWebservice openOr RestRecordConfig.webservice
+trait RestEndpoint {
+  
+  final val * = "*"
 
-  def webservice = _discoverWebservice 
+  /** Defines the RESTful endpoint for this resource -- /foo */
+  val uri: List[String]
+  
+  def uri(id: Any): List[String] = uri(List(id.toString))
+  
+  def uri(ids: List[Any]): List[String] = {
+    val strs = ids.map(_.toString)
+    val _ids: ListBuffer[String] = ListBuffer(strs: _*)
+
+    val _uri = uri.foldLeft(ListBuffer[String]())((xs, x) => { 
+      val append = if(x.equals(*) && !_ids.isEmpty) _ids.remove(0) else x 
+      xs.append(append)
+      xs
+    })
+
+    _uri.toList
+  }
 }
