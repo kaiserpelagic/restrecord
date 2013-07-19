@@ -47,9 +47,6 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
     withHttp(http, oauth(svc url(path) query(query: _*)) find, fromJValue)
   }
 
-  def oauth(svc: WebService): WebService = 
-    if (oauth_?) svc oauth(consumer, token) else svc
-
   def create(inst: BaseRecord): Promise[Box[JValue]] = 
     createFrom(inst, inst.webservice)
 
@@ -96,6 +93,9 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
       case Left(e) => Failure("error", Full(e), Empty)
     }
   }
+
+  def oauth(svc: WebService): WebService = 
+    if (config.oauth) svc oauth(config.getConsumer, config.getToken) else svc
 
   /** 
    *  Transforms a JObject into a String 
