@@ -21,41 +21,34 @@ import net.liftweb.record.{MetaRecord, Record}
 import net.liftweb.util.Props 
 
 import dispatch._
-//import dispatch.oauth._
 import com.ning.http.client.{RequestBuilder}
 import com.ning.http.client.oauth._
 
-object RestRecordConfig {
-  var host: String = "localhost"
-  var port: Box[Int] = Empty
-  var context: Box[String] = Empty
-  
-  var ssl = false
-  var oauth = false
-  val requestToken = Props.get("restrecord.oauthRequestToken")
-  val tokenSecret =	Props.get("restrecord.oauthTokenSecret")
-  val consumerKey = Props.get("restrecord.oauthConsumerKey")
-  val consumerSecret = Props.get("restrecord.oauthConsumerSecret") 
-
-  def req = {
-    val ctx = host + (context.map("/" + _) openOr "")
-    val _req = port.map(:/(ctx, _)) openOr :/(ctx) 
-    if (ssl) _req.secure else _req
-  }
-
-  def webservice = new WebService(req)
+case class RestRecordConfig(
+  host: String = "localhost", 
+  port: Box[Int] = Empty, 
+  context: Box[String] = Empty, 
+  ssl: Boolean = false,
+  oauth: Boolean = false,
+  consumer: Box[ConsumerKey] = Empty,
+  token: Box[RequestToken] = Empty
+) {
+  def getConsumer = consumer openOr new ConsumerKey("", "")
+  def getToken = token openOr new RequestToken("", "")
 }
 
 trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] 
-  with RestEndpoint with Oauth {
+  with RestEndpoint {
 
   self: MyType =>
   
+  def config: RestRecordConfig
+
   /** 
    *  Refine meta to require a RestMetaRecord 
    */
   def meta: RestMetaRecord[MyType]
-  
+
   /** 
    *  Defines the RESTful id for this resource
    *  Empty implies this endoint does not use and id
@@ -79,45 +72,11 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType]
 
   def deleteEndpoint = _discoverEndpoint
 
-  // override this if you want to change this record's specific webservice from the default in config
-  def webservice: WebService = _discoverWebservice 
-  
-  def _webservice = Empty
-
-  def _discoverWebservice = _webservice openOr RestRecordConfig.webservice 
+  def webservice: WebService = { 
+    val reqNoContext = (config.port.map(:/(config.host, _)) openOr :/(config.host)) 
+    val req = (config.context.map(reqNoContext / _) openOr reqNoContext)
+    new WebService(req) 
+  }
 
   private def _discoverEndpoint = idPk.map(uri(_)) openOr uri
-  
-  // override this is you something other than the default in config 
-  val oauth_? = RestRecordConfig.oauth
-}
-
-trait Oauth {
-  val consumer = new ConsumerKey(RestRecordConfig.consumerKey.getOrElse(""), RestRecordConfig.consumerSecret.getOrElse(""))
-  val token = new RequestToken(RestRecordConfig.requestToken.getOrElse(""), RestRecordConfig.tokenSecret.getOrElse(""))
-}
-
-import scala.collection.mutable.ListBuffer
-
-trait RestEndpoint {
-  
-  final val * = "*"
-
-  /** Defines the RESTful endpoint for this resource -- /foo */
-  val uri: List[String]
-  
-  def uri(id: Any): List[String] = uri(List(id.toString))
-  
-  def uri(ids: List[Any]): List[String] = {
-    val strs = ids.map(_.toString)
-    val _ids: ListBuffer[String] = ListBuffer(strs: _*)
-
-    val _uri = uri.foldLeft(ListBuffer[String]())((xs, x) => { 
-      val append = if(x.equals(*) && !_ids.isEmpty) _ids.remove(0) else x 
-      xs.append(append)
-      xs
-    })
-
-    _uri.toList
-  }
 }
