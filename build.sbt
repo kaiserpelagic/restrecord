@@ -1,6 +1,6 @@
 name := "restrecord"
 
-liftVersion <<= liftVersion ?? "2.5-M4"
+liftVersion <<= liftVersion ?? "2.5.1"
 
 version <<= liftVersion apply { _ + "-1.1" }
 
@@ -40,6 +40,8 @@ publishTo <<= version { _.endsWith("SNAPSHOT") match {
   case false => Some("releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
  }
 } 
+
+scalacOptions += "-unchecked"
 
 credentials += Credentials( file("/private/liftmodules/sonatype.credentials") )
 
