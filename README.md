@@ -23,9 +23,11 @@ In build.sbt add this to libraryDependencies
 ```
 liftVersion = 2.5
 
-scalaVersion =  2.9.2
+scalaVersion =  2.10.1
 
-"net.liftmodules" %% "restrecord" % (liftVersion + "-1.3-SNAPSHOT") 
+"net.liftmodules" %% "restrecord" % (liftVersion + "-1.4-SNAPSHOT")
+
+for 2.9.2 use liftVersion + "-1.3-SNAPSHOT"
 ```
 
 ### Configuration
