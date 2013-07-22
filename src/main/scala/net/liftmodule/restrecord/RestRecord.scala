@@ -34,7 +34,7 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType]
    */
   def meta: RestMetaRecord[MyType]
   
-  def config: RestRecordConfig = meta.config 
+  lazy val config: RestRecordConfig = meta.config
 
   /** 
    *  Defines the RESTful id for this resource
@@ -59,7 +59,7 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType]
 
   def deleteEndpoint = _discoverEndpoint
 
-  def webservice: WebService = { 
+  def webservice: WebService = {
     val reqNoContext = (config.port.map(:/(config.host, _)) openOr :/(config.host)) 
     val req = (config.context.map(reqNoContext / _) openOr reqNoContext)
     new WebService(req) 
