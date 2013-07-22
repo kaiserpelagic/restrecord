@@ -127,10 +127,13 @@ My work around for now is to copy JSONRecord into the RestRecord package. Hopefu
 ### Finding a Tweet (GET)
 
 ```scala
-  // api.twitter.com/1.1/search/tweets.json?q=lift_framework
-  val search: Promise[Box[Search]] = Search.find(("q", "lift framework")) 
+  // brings implicits into scopt for Future -> EnrichedFuture
+  import dispatch._ 
 
-  // assert that a promised value be available at any time with the use of apply; this is blocking
+  // api.twitter.com/1.1/search/tweets.json?q=lift_framework
+  val search: Future[Box[Search]] = Search.find(("q", "lift framework")) 
+
+  // assert that an EnrichedFuture value be available at any time with the use of apply; this is blocking
   val result: Box[Search] = search()
 
 ```
@@ -138,10 +141,10 @@ My work around for now is to copy JSONRecord into the RestRecord package. Hopefu
 
 ```scala
   //api.twitter.com/1.1/statuses/show/21947795900469248.json
-  val status: Promise[Box[Status]] = Status.find(21947795900469248.toString + ".json") 
+  val status: Future[Box[Status]] = Status.find(21947795900469248.toString + ".json") 
   
   //api.twitter.com/1.1/statuses/show/21947795900469248.json?trim_user=t
-  val status2: Promise[Box[Status]] = Status.find(21947795900469248.toString + ".json", ("trim_user", "t"))
+  val status2: Future[Box[Status]] = Status.find(21947795900469248.toString + ".json", ("trim_user", "t"))
 ```
 
 HTTP failures are captured in the Box as a Failure. The caller is responsible for handling them 
@@ -168,9 +171,9 @@ object Twitter {
 Creating, saving and deleting use the matching REST verbs and returns a Promise[Box[JValue]].
 
 ```scala
-val createRes: Promise[Box[JValue]] = MyRest.create  // POST
-val saveRes = Promise[Box[JValue]] = MyRest.save     // PUT
-val deleteRes = Promise[Box[JValue]] = MyRest.delete // DELETE
+val createRes: Future[Box[JValue]] = MyRest.create  // POST
+val saveRes: Future[Box[JValue]] = MyRest.save     // PUT
+val deleteRes: Future[Box[JValue]] = MyRest.delete // DELETE
 ```
 
 ### Example Project
