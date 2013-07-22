@@ -21,7 +21,11 @@ resolvers ++= Seq(
 In build.sbt add this to libraryDependencies
 
 ```
-"net.liftmodules" %% "restrecord" % (liftVersion + "-1.1") 
+liftVersion = 2.5
+
+scalaVersion =  2.9.2
+
+"net.liftmodules" %% "restrecord" % (liftVersion + "-1.2-SNAPSHOT") 
 ```
 
 ### Configuration
