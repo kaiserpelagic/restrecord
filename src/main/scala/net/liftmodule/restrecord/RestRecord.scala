@@ -42,12 +42,13 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType]
 
   self: MyType =>
   
-  def config: RestRecordConfig
 
   /** 
    *  Refine meta to require a RestMetaRecord 
    */
   def meta: RestMetaRecord[MyType]
+  
+  def config: RestRecordConfig = meta.config 
 
   /** 
    *  Defines the RESTful id for this resource

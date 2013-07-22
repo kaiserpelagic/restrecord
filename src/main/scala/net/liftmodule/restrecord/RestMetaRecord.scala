@@ -25,8 +25,12 @@ import dispatch._
 import com.ning.http.client.{RequestBuilder, Request}
 import com.ning.http.client.oauth._
 
+trait Config {
+  def config: RestRecordConfig
+}
+
 trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]] 
-  extends JSONMetaRecord[BaseRecord] {
+  extends JSONMetaRecord[BaseRecord] with Config {
 
   self: BaseRecord =>
   
