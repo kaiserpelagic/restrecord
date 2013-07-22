@@ -2,22 +2,22 @@ name := "restrecord"
 
 liftVersion <<= liftVersion ?? "2.5"
 
-version <<= liftVersion apply { _ + "-1.3-SNAPSHOT" }
+version <<= liftVersion apply { _ + "-1.4-SNAPSHOT" }
 
 organization := "net.liftmodules"
  
-scalaVersion := "2.9.2"
+scalaVersion := "2.10.0"
   
-crossScalaVersions := Seq("2.9.1", "2.9.2")
+crossScalaVersions := Seq("2.10.0", "2.10.1")
 
 resolvers += "CB Central Mirror" at "http://repo.cloudbees.com/content/groups/public"
 
 resolvers += "Java.net Maven2 Repository" at "http://download.java.net/maven/2/"
 
 libraryDependencies <++= liftVersion { v =>
-  "net.liftweb"             %% "lift-record"        % v        % "compile->default" ::
-  "net.databinder.dispatch" %% "dispatch-core"      % "0.9.4"  % "compile->default" ::
-  "net.databinder.dispatch" %% "dispatch-lift-json" % "0.9.4"  % "compile->default" ::
+  "net.liftweb"             %% "lift-record"        % v         % "compile->default" ::
+  "net.databinder.dispatch" %% "dispatch-core"      % "0.10.1"  % "compile->default" ::
+  "net.databinder.dispatch" %% "dispatch-lift-json" % "0.10.1"  % "compile->default" ::
    Nil
 }
 
@@ -37,9 +37,15 @@ libraryDependencies <++= liftVersion { v =>
 
 publishTo <<= version { _.endsWith("SNAPSHOT") match {
   case true  => Some("snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
-  case false => Some("releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
+  case false => Some("releases"  at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
  }
 } 
+
+scalacOptions += "-language:postfixOps"
+
+scalacOptions += "-language:implicitConversions"
+
+scalacOptions += "-language:existentials"
 
 scalacOptions += "-unchecked"
 

@@ -23,6 +23,8 @@ import net.liftweb.util.Props
 import dispatch._
 import com.ning.http.client.{RequestBuilder}
 
+import scala.concurrent.Future
+
 trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] 
   with RestEndpoint {
 
@@ -42,11 +44,11 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType]
    */
   def idPk: Box[Any] = Empty
  
-  def create: Promise[Box[JValue]] = meta.create(this)
+  def create: Future[Box[JValue]] = meta.create(this)
 
-  def save: Promise[Box[JValue]] = meta.save(this)
+  def save: Future[Box[JValue]] = meta.save(this)
   
-  def delete: Promise[Box[JValue]] = meta.delete(this)
+  def delete: Future[Box[JValue]] = meta.delete(this)
 
   def findEndpoint(id: Any) = uri(id)
   

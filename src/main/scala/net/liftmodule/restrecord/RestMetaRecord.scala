@@ -25,6 +25,9 @@ import dispatch._
 import com.ning.http.client.{RequestBuilder, Request}
 import com.ning.http.client.oauth._
 
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+
 case class RestRecordConfig(
   host: String = "localhost", 
   port: Box[Int] = Empty, 
@@ -47,25 +50,25 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
 
   val configuration: RestRecordConfig
 
-  def find(query: (String, String)*): Promise[Box[BaseRecord]] = 
+  def find(query: (String, String)*): Future[Box[BaseRecord]] = 
     findFrom(webservice, findEndpoint, query: _*)
   
-  def find(id: String, query: (String, String)*): Promise[Box[BaseRecord]] =
+  def find(id: String, query: (String, String)*): Future[Box[BaseRecord]] =
     findFrom(webservice, findEndpoint(id), query: _*)
   
-  def find(id: Int, query: (String, String)*): Promise[Box[BaseRecord]] =
+  def find(id: Int, query: (String, String)*): Future[Box[BaseRecord]] =
     findFrom(webservice, findEndpoint(id), query: _*)
   
   def findFrom(svc: WebService, path: List[String], 
-    query: (String, String)*): Promise[Box[BaseRecord]] = {
+    query: (String, String)*): Future[Box[BaseRecord]] = {
 
     withHttp(http, oauth(svc url(path) query(query: _*)) find, fromJValue)
   }
 
-  def create(inst: BaseRecord): Promise[Box[JValue]] = 
+  def create(inst: BaseRecord): Future[Box[JValue]] = 
     createFrom(inst, inst.webservice)
 
-  def createFrom(inst: BaseRecord, svc: WebService): Promise[Box[JValue]] = { 
+  def createFrom(inst: BaseRecord, svc: WebService): Future[Box[JValue]] = { 
     foreachCallback(inst, _.beforeCreate)
     try {
       withHttp(http, oauth(svc url(inst.createEndpoint)) create(inst.asJValue), fullIdent)
@@ -74,10 +77,10 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
     }
   }
 
-  def save(inst: BaseRecord): Promise[Box[JValue]] = 
+  def save(inst: BaseRecord): Future[Box[JValue]] = 
     saveFrom(inst, inst.webservice)
 
-  def saveFrom(inst: BaseRecord, svc: WebService): Promise[Box[JValue]] = {
+  def saveFrom(inst: BaseRecord, svc: WebService): Future[Box[JValue]] = {
     foreachCallback(inst, _.beforeSave)
     try {
       withHttp(http, oauth(svc url(inst.saveEndpoint)) save(inst.asJValue), fullIdent)
@@ -86,10 +89,10 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
     }
   }
 
-  def delete(inst: BaseRecord): Promise[Box[JValue]] = 
+  def delete(inst: BaseRecord): Future[Box[JValue]] = 
     deleteFrom(inst, inst.webservice)
 
-  def deleteFrom(inst: BaseRecord, svc: WebService): Promise[Box[JValue]] = {
+  def deleteFrom(inst: BaseRecord, svc: WebService): Future[Box[JValue]] = {
     foreachCallback(inst, _.beforeDelete)
     try { 
       withHttp(http, oauth(svc url(inst.deleteEndpoint)) delete, fullIdent)
@@ -101,7 +104,7 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   def fullIdent(jv: JValue) = Full(jv)
 
   def withHttp[T](h: Http, body: (Request, OkFunctionHandler[JValue]), 
-    handle: JValue => Box[T]): Promise[Box[T]] = {
+    handle: JValue => Box[T]): Future[Box[T]] = {
    
     h(body).either map {
       case Right(v) => handle(v)
