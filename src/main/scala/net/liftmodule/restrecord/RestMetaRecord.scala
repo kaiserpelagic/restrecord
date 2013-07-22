@@ -25,16 +25,27 @@ import dispatch._
 import com.ning.http.client.{RequestBuilder, Request}
 import com.ning.http.client.oauth._
 
-trait Config {
-  def config: RestRecordConfig
+case class RestRecordConfig(
+  host: String = "localhost", 
+  port: Box[Int] = Empty, 
+  context: Box[String] = Empty, 
+  ssl: Boolean = false,
+  oauth: Boolean = false,
+  consumer: Box[ConsumerKey] = Empty,
+  token: Box[RequestToken] = Empty
+) {
+  def getConsumer = consumer openOr new ConsumerKey("", "")
+  def getToken = token openOr new RequestToken("", "")
 }
 
 trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]] 
-  extends JSONMetaRecord[BaseRecord] with Config {
+  extends JSONMetaRecord[BaseRecord] {
 
   self: BaseRecord =>
   
   val http = Http 
+
+  def config: RestRecordConfig
 
   def find(query: (String, String)*): Promise[Box[BaseRecord]] = 
     findFrom(webservice, findEndpoint, query: _*)

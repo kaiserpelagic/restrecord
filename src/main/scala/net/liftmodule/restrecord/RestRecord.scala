@@ -22,26 +22,12 @@ import net.liftweb.util.Props
 
 import dispatch._
 import com.ning.http.client.{RequestBuilder}
-import com.ning.http.client.oauth._
 
-case class RestRecordConfig(
-  host: String = "localhost", 
-  port: Box[Int] = Empty, 
-  context: Box[String] = Empty, 
-  ssl: Boolean = false,
-  oauth: Boolean = false,
-  consumer: Box[ConsumerKey] = Empty,
-  token: Box[RequestToken] = Empty
-) {
-  def getConsumer = consumer openOr new ConsumerKey("", "")
-  def getToken = token openOr new RequestToken("", "")
-}
 
 trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] 
   with RestEndpoint {
 
   self: MyType =>
-  
 
   /** 
    *  Refine meta to require a RestMetaRecord 
