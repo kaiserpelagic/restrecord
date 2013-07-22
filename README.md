@@ -31,16 +31,12 @@ for 2.9.2 use liftVersion + "-1.3-SNAPSHOT"
 ```
 
 ### Configuration
-RestRecord can be configured by setting vars on the RestRecordConfig class
-
-* host: String = "api.twitter.com"
-* context: Box[String] =  Full("1.1")
-* ssl: Boolean -> if true uses https
-* oauth: Boolean -> if true uses oauth
+RestRecord can be configured by through RestRecordConfig class
 
 Configuration for Twitter's api v1.1 using oauth
-```scala
 
+```scala
+// defaults
 case class RestRecordConfig(
   host: String = "localhost", 
   port: Box[Int] = Empty, 
@@ -51,10 +47,10 @@ case class RestRecordConfig(
   token: Box[RequestToken] = Empty
 )
 
-
-import net.liftmodules.RestRecord
+// import if you're using oauth
 import com.ning.http.client.oauth._
 
+// mix this into a RestMetaRecord object to configure the resource
 trait TwitterConfig {
 
   val consumerKey = new ConsumerKey(key, secret)
