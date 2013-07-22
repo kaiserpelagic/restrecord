@@ -19,7 +19,9 @@ import dispatch.oauth._
 import com.ning.http.client.{RequestBuilder}
 import com.ning.http.client.oauth._
 
-class WebService(val request: RequestBuilder) extends LiftJsonHandlers {
+import scala.xml._
+
+class WebService(val request: RequestBuilder) extends Handlers {
 
   def url(path: List[String]) = 
     path.foldLeft(request)((request, part) => request / part)
@@ -38,14 +40,40 @@ trait WebRequest {
   def request: RequestBuilder
 }
 
-trait LiftJsonHandlers extends WebRequest {
+trait Handlers extends WebRequest {
   /** JSON Handlers */
   
-  def find = request.GET OK as.lift.Json
+  def find = request.GET > as.lift.Json
   
-  def create(body: String) = request.POST.setBody(body) OK as.lift.Json 
+  def create(body: String) = request.POST.setBody(body) > as.lift.Json 
   
-  def save(body: String) = request.PUT.setBody(body) OK as.lift.Json
+  def save(body: String) = request.PUT.setBody(body) > as.lift.Json
 
-  def delete = request.DELETE OK as.lift.Json
+  def delete = request.DELETE > as.lift.Json
+
+  /** XML Handlers */
+
+  def findXML = request > as.xml.Elem 
+    
+  def saveXML(body: NodeSeq) = { 
+    request.PUT.setBody(body.toString) > as.xml.Elem  
+  }
+
+  def createXML(body: NodeSeq) = {
+    request.POST.setBody(body.toString) > as.xml.Elem
+  }
+  
+  def deleteXML = {
+    request.DELETE > as.xml.Elem
+  }
+  
+  /** Form Handlers */
+  def createFORM(body: String) = {
+    request.POST.setBody(body) > as.xml.Elem
+  }
+
+  /* Download a file */
+  def download = {
+    request.GET > as.Bytes
+  }
 }

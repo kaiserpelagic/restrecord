@@ -103,7 +103,7 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
 
   def fullIdent(jv: JValue) = Full(jv)
 
-  def withHttp[T](h: Http, body: (Request, OkFunctionHandler[JValue]), 
+  def withHttp[T](h: Http, body: (Request, FunctionHandler[JValue]), 
     handle: JValue => Box[T]): Future[Box[T]] = {
    
     h(body).either map {
