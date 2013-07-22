@@ -24,6 +24,7 @@ import dispatch._
 import com.ning.http.client.{RequestBuilder}
 
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] 
   with RestEndpoint {
