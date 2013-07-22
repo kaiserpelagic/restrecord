@@ -8,7 +8,7 @@ organization := "net.liftmodules"
  
 scalaVersion := "2.9.2"
   
-crossScalaVersions := Seq("2.9.1, 2.9.2")
+crossScalaVersions := Seq("2.9.1", "2.9.2")
 
 resolvers += "CB Central Mirror" at "http://repo.cloudbees.com/content/groups/public"
 
