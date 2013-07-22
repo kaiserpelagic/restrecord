@@ -2,7 +2,7 @@ name := "restrecord"
 
 liftVersion <<= liftVersion ?? "2.5"
 
-version <<= liftVersion apply { _ + "-1.1" }
+version <<= liftVersion apply { _ + "-1.2-SNAPSHOT" }
 
 organization := "net.liftmodules"
  
