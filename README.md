@@ -25,7 +25,7 @@ liftVersion = 2.5
 
 scalaVersion =  2.10.1
 
-"net.liftmodules" %% "restrecord" % (liftVersion + "-1.4-SNAPSHOT")
+"net.liftmodules" %% "restrecord" % (liftVersion + "-1.5-SNAPSHOT")
 
 for 2.9.2 use liftVersion + "-1.3-SNAPSHOT"
 ```
