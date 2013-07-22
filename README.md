@@ -25,11 +25,11 @@ liftVersion = 2.5
 
 scalaVersion =  2.9.2
 
-"net.liftmodules" %% "restrecord" % (liftVersion + "-1.2-SNAPSHOT") 
+"net.liftmodules" %% "restrecord" % (liftVersion + "-1.3-SNAPSHOT") 
 ```
 
 ### Configuration
-RestRecord can be configured by setting vars on the RestRecordConfig object in Boot.scala.
+RestRecord can be configured by setting vars on the RestRecordConfig class
 
 * host: String = "api.twitter.com"
 * context: Box[String] =  Full("1.1")
@@ -37,27 +37,38 @@ RestRecord can be configured by setting vars on the RestRecordConfig object in B
 * oauth: Boolean -> if true uses oauth
 
 Configuration for Twitter's api v1.1 using oauth
-
 ```scala
-import net.liftmodules.RestRecord
-import net.liftmodules.restrecord.{RestRecordConfig}
 
-object Boot {
-  etc ...
-   
-  RestRecordConfig.host = "api.twitter.com"
-  RestRecordConfig.context = Full("1.1")
-  RestRecordConfig.oauth = true
-  RestRecord.init()
+case class RestRecordConfig(
+  host: String = "localhost", 
+  port: Box[Int] = Empty, 
+  context: Box[String] = Empty, 
+  ssl: Boolean = false,
+  oauth: Boolean = false,
+  consumer: Box[ConsumerKey] = Empty,
+  token: Box[RequestToken] = Empty
+)
+
+
+import net.liftmodules.RestRecord
+import com.ning.http.client.oauth._
+
+trait TwitterConfig {
+
+  val consumerKey = new ConsumerKey(key, secret)
+  val token = new RequestToken(key, secret)
+
+  val configuration = RestRecordConfig(
+    "api.twitter.com",
+    Empty,
+    Full("1.1"),
+    true, 
+    true,
+    Full(consumerKey),
+    Full(token)
+  )
 }
 ```
-To use oauth you'll need to add these properties into the props file
-
-* restrecord.oauthRequestToken = my_twitter_oauth_token
-* restrecord.oauthTokenSecret = my_twitter_oauth_token_secret
-* restrecord.oauthConsumerKey = my_twitter_consumer_key
-* restrecord.oauthConsumerSecret = my_twitter_consumer_secret
-
 
 ## Creating a RestRecord
 
@@ -93,7 +104,7 @@ class Search extends RestRecord[Search] {
   object statuses extends JSONSubRecordArrayField(this, Statuses)
 }
 
-object Search extends Search with RestMetaRecord[Search] { }
+object Search extends Search with RestMetaRecord[Search] with TwitterConfig
 
 class Statuses extends RestRecord[Statuses] {
   def meta = Statuses
@@ -109,7 +120,7 @@ class Statuses extends RestRecord[Statuses] {
   object text extends OptionalStringField(this, Empty)
 }
 
-object Statuses extends Statuses with RestMetaRecord[Statuses] { }
+object Statuses extends Statuses with RestMetaRecord[Statuses] with TwitterConfig
 ```
 RestRecord uses JSONRecord (which includes JSONSubRecordArrayField used above) from the couchdb lift module. Unfortunately, couchdb imports an older version of Dispatch which conflicts with the newer version used in RestRecord.
 
