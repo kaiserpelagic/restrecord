@@ -31,7 +31,7 @@ for 2.9.2 use liftVersion + "-1.3-SNAPSHOT"
 ```
 
 ### Configuration
-RestRecord can be configured by through RestRecordConfig class
+RestRecord can be configured through the RestRecordConfig class
 
 Configuration for Twitter's api v1.1 using oauth
 
