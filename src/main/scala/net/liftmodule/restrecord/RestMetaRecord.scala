@@ -45,7 +45,7 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   
   val http = Http 
 
-  val config: RestRecordConfig
+  val configuration: RestRecordConfig
 
   def find(query: (String, String)*): Promise[Box[BaseRecord]] = 
     findFrom(webservice, findEndpoint, query: _*)

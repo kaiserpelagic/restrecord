@@ -23,7 +23,6 @@ import net.liftweb.util.Props
 import dispatch._
 import com.ning.http.client.{RequestBuilder}
 
-
 trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] 
   with RestEndpoint {
 
@@ -34,7 +33,7 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType]
    */
   def meta: RestMetaRecord[MyType]
   
-  lazy val config: RestRecordConfig = meta.config
+  lazy val config: RestRecordConfig = meta.configuration
 
   /** 
    *  Defines the RESTful id for this resource
