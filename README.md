@@ -25,7 +25,7 @@ liftVersion = 2.5
 
 scalaVersion =  2.10.1
 
-"net.liftmodules" %% "restrecord" % (liftVersion + "-1.4-SNAPSHOT")
+"net.liftmodules" %% "restrecord" % (liftVersion + "-1.5-SNAPSHOT")
 
 for 2.9.2 use liftVersion + "-1.3-SNAPSHOT"
 ```
@@ -168,12 +168,13 @@ object Twitter {
 
 ### POST, PUT, DELETE
 
-Creating, saving and deleting use the matching REST verbs and returns a Promise[Box[JValue]].
+Creating, saving and deleting use the matching REST verbs and returns a Future[Box[JValue]].
 
 ```scala
-val createRes: Future[Box[JValue]] = MyRest.create  // POST
-val saveRes: Future[Box[JValue]] = MyRest.save     // PUT
-val deleteRes: Future[Box[JValue]] = MyRest.delete // DELETE
+val record = MyRecord.createRecord.id(2)
+val createRes: Future[Box[JValue]] = record.create  // POST
+val saveRes: Future[Box[JValue]] = record.save     // PUT
+val deleteRes: Future[Box[JValue]] = record.delete // DELETE
 ```
 
 ### Example Project
