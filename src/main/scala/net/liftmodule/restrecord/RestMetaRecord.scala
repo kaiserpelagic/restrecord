@@ -3,7 +3,7 @@
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+* You may obtain a copy of the License at svc.http://www.apache.org/licenses/LICENSE-2.0
 * Unless required by applicable law or agreed to in writing, software
 * distributed under the License is distributed on an "AS IS" BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,7 +18,6 @@ import net.liftweb.util._
 import net.liftweb.common._
 import Helpers._
 import net.liftweb.json.JsonAST._
-import net.liftweb.json.{Printer}
 import net.liftweb.record.{MetaRecord, Record}
 
 import dispatch._
@@ -46,8 +45,6 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
 
   self: BaseRecord =>
   
-  val http = Http 
-
   val configuration: RestRecordConfig
 
   def find(query: (String, String)*): Future[Box[BaseRecord]] = 
@@ -62,7 +59,7 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   def findFrom(svc: WebService, path: List[String], 
     query: (String, String)*): Future[Box[BaseRecord]] = {
 
-    withHttp(http, oauth(svc url(path) query(query: _*)) find, fromJValue)
+    withHttp(svc.http, oauth(svc url(path) query(query: _*)) find, fromJValue)
   }
 
   def create(inst: BaseRecord): Future[Box[JValue]] = 
@@ -71,7 +68,7 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   def createFrom(inst: BaseRecord, svc: WebService): Future[Box[JValue]] = { 
     foreachCallback(inst, _.beforeCreate)
     try {
-      withHttp(http, oauth(svc url(inst.createEndpoint)) create(inst.asJValue), fullIdent)
+      withHttp(svc.http, oauth(svc url(inst.createEndpoint)) create(inst.asJValue), fullIdent)
     } finally {
       foreachCallback(inst, _.afterCreate)
     }
@@ -83,7 +80,7 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   def saveFrom(inst: BaseRecord, svc: WebService): Future[Box[JValue]] = {
     foreachCallback(inst, _.beforeSave)
     try {
-      withHttp(http, oauth(svc url(inst.saveEndpoint)) save(inst.asJValue), fullIdent)
+      withHttp(svc.http, oauth(svc url(inst.saveEndpoint)) save(inst.asJValue), fullIdent)
     } finally {
       foreachCallback(inst, _.afterSave)
     }
@@ -95,7 +92,7 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   def deleteFrom(inst: BaseRecord, svc: WebService): Future[Box[JValue]] = {
     foreachCallback(inst, _.beforeDelete)
     try { 
-      withHttp(http, oauth(svc url(inst.deleteEndpoint)) delete, fullIdent)
+      withHttp(svc.http, oauth(svc url(inst.deleteEndpoint)) delete, fullIdent)
     } finally {
       foreachCallback(inst, _.afterDelete)
     }
@@ -115,11 +112,4 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   def oauth(svc: WebService): WebService = 
     if (config.oauth) svc oauth(config.getConsumer, config.getToken) else svc
 
-  /** 
-   *  Transforms a JObject into a String 
-   */
-  implicit def jobjectToString(in: JObject): String = Printer.compact(render(in))
-
-  implicit def implyRequestBuilderToWebService(builder: RequestBuilder): WebService =
-    new WebService(builder)
 }

@@ -21,10 +21,11 @@ import net.liftweb.record.{MetaRecord, Record}
 import net.liftweb.util.Props 
 
 import dispatch._
-import com.ning.http.client.{RequestBuilder}
+import com.ning.http.client.{RequestBuilder, Request}
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+
 
 trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType] 
   with RestEndpoint {
@@ -35,7 +36,14 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType]
    *  Refine meta to require a RestMetaRecord 
    */
   def meta: RestMetaRecord[MyType]
-  
+
+  def webservice: WebService = new WebServiceImpl(req)
+
+  def req = {
+    val reqNoContext = (config.port.map(:/(config.host, _)) openOr :/(config.host)) 
+    (config.context.map(reqNoContext / _) openOr reqNoContext)
+  }
+
   lazy val config: RestRecordConfig = meta.configuration
 
   /** 
@@ -61,11 +69,6 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType]
 
   def deleteEndpoint = _discoverEndpoint
 
-  def webservice: WebService = {
-    val reqNoContext = (config.port.map(:/(config.host, _)) openOr :/(config.host)) 
-    val req = (config.context.map(reqNoContext / _) openOr reqNoContext)
-    new WebService(req) 
-  }
-
   private def _discoverEndpoint = idPk.map(uri(_)) openOr uri
 }
+

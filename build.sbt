@@ -15,9 +15,12 @@ resolvers += "CB Central Mirror" at "http://repo.cloudbees.com/content/groups/pu
 resolvers += "Java.net Maven2 Repository" at "http://download.java.net/maven/2/"
 
 libraryDependencies <++= liftVersion { v =>
-  "net.liftweb"             %% "lift-record"        % v         % "compile->default" ::
-  "net.databinder.dispatch" %% "dispatch-core"      % "0.10.1"  % "compile->default" ::
-  "net.databinder.dispatch" %% "dispatch-lift-json" % "0.10.1"  % "compile->default" ::
+  "net.liftweb"             %% "lift-record"                 % v         % "compile->default" ::
+  "net.databinder.dispatch" %% "dispatch-core"               % "0.10.1"  % "compile->default" ::
+  "net.databinder.dispatch" %% "dispatch-lift-json"          % "0.10.1"  % "compile->default" ::
+  "net.databinder"          %% "unfiltered-netty-server"     % "0.6.8"   % "test" ::
+  "org.scalamock"           %% "scalamock-scalatest-support" % "3.0.1"   % "test" ::
+  "org.scalatest"            % "scalatest_2.10"              % "1.9.1"   % "test" ::
    Nil
 }
 
