@@ -2,7 +2,7 @@ name := "restrecord"
 
 liftVersion <<= liftVersion ?? "2.5"
 
-version <<= liftVersion apply { _ + "-1.5" }
+version <<= liftVersion apply { _ + "-1.6-SNAPSHOT" }
 
 organization := "net.liftmodules"
  
@@ -16,8 +16,8 @@ resolvers += "Java.net Maven2 Repository" at "http://download.java.net/maven/2/"
 
 libraryDependencies <++= liftVersion { v =>
   "net.liftweb"             %% "lift-record"                 % v         % "compile->default" ::
-  "net.databinder.dispatch" %% "dispatch-core"               % "0.10.1"  % "compile->default" ::
-  "net.databinder.dispatch" %% "dispatch-lift-json"          % "0.10.1"  % "compile->default" ::
+  "net.databinder.dispatch" %% "dispatch-core"               % "0.11.0"  % "compile->default" ::
+  "net.databinder.dispatch" %% "dispatch-lift-json"          % "0.11.0"  % "compile->default" ::
   "net.databinder"          %% "unfiltered-netty-server"     % "0.6.8"   % "test" ::
   "org.scalamock"           %% "scalamock-scalatest-support" % "3.0.1"   % "test" ::
   "org.scalatest"            % "scalatest_2.10"              % "1.9.1"   % "test" ::
@@ -52,7 +52,12 @@ scalacOptions += "-language:existentials"
 
 scalacOptions += "-unchecked"
 
-credentials += Credentials( file("/private/liftmodules/sonatype.credentials") )
+credentials += Credentials("Sonatype Nexus Repository Manager",
+	                           "oss.sonatype.org",
+	                           "p3lagic",
+	                           "fam1l1ar")
+
+//file("/private/liftmodules/sonatype.credentials") )
 
 publishMavenStyle := true
 
