@@ -102,11 +102,7 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
 
   def withHttp[T](h: Http, body: (Request, FunctionHandler[JValue]), 
     handle: JValue => Box[T]): Future[Box[T]] = {
-   
-    h(body).either map {
-      case Right(v) => handle(v)
-      case Left(e) => Failure("error", Full(e), Empty)
-    }
+    HttpHelper.execute(h, body, handle) 
   }
 
   def oauth(svc: WebService): WebService = 
