@@ -17,7 +17,7 @@ package restrecord
 import dispatch._
 import dispatch.oauth._
 
-import com.ning.http.client.{RequestBuilder, Request}
+import com.ning.http.client.{Request}
 import com.ning.http.client.oauth._
 
 import net.liftweb.json.JsonAST.{JValue}
@@ -58,7 +58,7 @@ trait RequestHandlerInterface {
   def download: (Request, FunctionHandler[Array[Byte]]) 
 }
 
-class WebServiceImpl(val request: RequestBuilder) extends WebService with RequestHandler with RequestMaker
+class WebServiceImpl(val request: Req) extends WebService with RequestHandler with RequestMaker
 
 trait RequestMaker extends RequestMakerInterface with WebRequest {
   def url(path: List[String]) = 
@@ -75,7 +75,7 @@ trait RequestMaker extends RequestMakerInterface with WebRequest {
 }
 
 trait WebRequest {
-  def request: RequestBuilder
+  def request: Req
 }
 
 trait RequestHandler extends WebRequest with RequestHandlerInterface {
