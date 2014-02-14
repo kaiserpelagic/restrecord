@@ -71,6 +71,8 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType]
 
   def deleteEndpoint = _discoverEndpoint
 
+  def deleteEndpoint(params: List[Any]) = uri(params)
+
   private def _discoverEndpoint = idPk.map(uri(_)) openOr uri
 }
 

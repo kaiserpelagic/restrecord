@@ -97,14 +97,22 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   def delete(inst: BaseRecord): Future[Box[JValue]] = 
     deleteFrom(inst, inst.webservice)
 
-  def deleteFrom(inst: BaseRecord, svc: WebService): Future[Box[JValue]] = {
+  def delete(inst: BaseRecord, params: List[Any]) =
+    deleteFrom(inst, inst.webservice, params)
+
+  def deleteFrom(inst: BaseRecord, svc: WebService, params: List[Any]): Future[Box[JValue]] = {
+    val endpoint = if(params.isEmpty) inst.deleteEndpoint else inst.deleteEndpoint(params)
+
     foreachCallback(inst, _.beforeDelete)
     try { 
-      withHttp(svc.http, oauth(svc url(inst.deleteEndpoint)) delete, fullIdent)
+      withHttp(svc.http, oauth(svc url(endpoint)) delete, fullIdent)
     } finally {
       foreachCallback(inst, _.afterDelete)
     }
   }
+
+  def deleteFrom(inst: BaseRecord, svc: WebService): Future[Box[JValue]] = 
+    deleteFrom(inst, svc, List.empty)
 
   def fullIdent(jv: JValue) = Full(jv)
 
