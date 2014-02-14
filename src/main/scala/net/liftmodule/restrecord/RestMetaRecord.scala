@@ -77,14 +77,22 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   def save(inst: BaseRecord): Future[Box[JValue]] = 
     saveFrom(inst, inst.webservice)
 
-  def saveFrom(inst: BaseRecord, svc: WebService): Future[Box[JValue]] = {
+  def save(inst: BaseRecord, params: List[Any]) = 
+    saveFrom(inst, inst.webservice, params)
+
+  def saveFrom(inst: BaseRecord, svc: WebService, params: List[Any]): Future[Box[JValue]] = {
+    val endpoint = if(params.isEmpty) inst.saveEndpoint else inst.saveEndpoint(params)
+
     foreachCallback(inst, _.beforeSave)
     try {
-      withHttp(svc.http, oauth(svc url(inst.saveEndpoint)) save(inst.asJValue), fullIdent)
+      withHttp(svc.http, oauth(svc url(endpoint)) save(inst.asJValue), fullIdent)
     } finally {
       foreachCallback(inst, _.afterSave)
     }
   }
+
+  def saveFrom(inst: BaseRecord, svc: WebService): Future[Box[JValue]] = 
+    saveFrom(inst, svc, List.empty)
 
   def delete(inst: BaseRecord): Future[Box[JValue]] = 
     deleteFrom(inst, inst.webservice)
