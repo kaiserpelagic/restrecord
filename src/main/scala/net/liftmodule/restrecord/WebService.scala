@@ -16,11 +16,51 @@ package restrecord
 
 import dispatch._
 import dispatch.oauth._
-import com.ning.http.client.{RequestBuilder}
+
+import com.ning.http.client.{Request}
 import com.ning.http.client.oauth._
 
-class WebService(val request: RequestBuilder) extends LiftJsonHandlers {
+import net.liftweb.json.JsonAST.{JValue}
 
+import scala.xml._
+
+abstract class WebService extends RequestMakerInterface with RequestHandlerInterface {
+  def http = Http 
+}
+
+trait RequestMakerInterface {
+  def url(path: List[String]): WebService
+
+  def query(params: (String, String)*): WebService
+
+  def head(params: (String, String)*): WebService
+
+  def oauth(consumer: ConsumerKey, token: RequestToken): WebService 
+}
+
+trait RequestHandlerInterface {
+  /** JSON Handlers */
+  def find: (Request, FunctionHandler[JValue])
+  def create(body: String): (Request, FunctionHandler[JValue])
+  def save(body: String): (Request, FunctionHandler[JValue])
+  def delete: (Request, FunctionHandler[JValue])
+
+  /** XML Handlers */
+  def findXML: (Request, FunctionHandler[NodeSeq])
+  def createXML(body: NodeSeq): (Request, FunctionHandler[NodeSeq])
+  def saveXML(body: NodeSeq): (Request, FunctionHandler[NodeSeq])
+  def deleteXML: (Request, FunctionHandler[NodeSeq])
+   
+  /** Form Handlers */
+  def createFORM(body: String): (Request, FunctionHandler[NodeSeq]) 
+
+  /* Download a file */
+  def download: (Request, FunctionHandler[Array[Byte]]) 
+}
+
+class WebServiceImpl(val request: Req) extends WebService with RequestHandler with RequestMaker
+
+trait RequestMaker extends RequestMakerInterface with WebRequest {
   def url(path: List[String]) = 
     path.foldLeft(request)((request, part) => request / part)
 
@@ -35,17 +75,30 @@ class WebService(val request: RequestBuilder) extends LiftJsonHandlers {
 }
 
 trait WebRequest {
-  def request: RequestBuilder
+  def request: Req
 }
 
-trait LiftJsonHandlers extends WebRequest {
-  /** JSON Handlers */
-  
-  def find = request.GET OK as.lift.Json
-  
-  def create(body: String) = request.POST.setBody(body) OK as.lift.Json 
-  
-  def save(body: String) = request.PUT.setBody(body) OK as.lift.Json
+trait RequestHandler extends WebRequest with RequestHandlerInterface {
 
-  def delete = request.DELETE OK as.lift.Json
+  def find = request.GET > as.lift.Json
+  
+  def create(body: String) = request.POST.setBody(body) > as.lift.Json 
+  
+  def save(body: String) = request.PUT.setBody(body) > as.lift.Json
+
+  def delete = request.DELETE > as.lift.Json
+
+  def findXML = request > as.xml.Elem 
+    
+  def saveXML(body: NodeSeq) = 
+    request.PUT.setBody(body.toString) > as.xml.Elem  
+
+  def createXML(body: NodeSeq) =
+    request.POST.setBody(body.toString) > as.xml.Elem
+  
+  def deleteXML = request.DELETE > as.xml.Elem
+  
+  def createFORM(body: String) = request.POST.setBody(body) > as.xml.Elem
+
+  def download = request.GET > as.Bytes
 }

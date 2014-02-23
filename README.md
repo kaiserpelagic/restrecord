@@ -21,39 +21,56 @@ resolvers ++= Seq(
 In build.sbt add this to libraryDependencies
 
 ```
-"net.liftmodules" %% "restrecord" % (liftVersion + "-1.1") 
+liftVersion = 2.5
+
+scalaVersion =  2.10.1
+
+"net.liftmodules" %% "restrecord"  % "2.5-1.5"
+
+or 
+
+"net.liftmodules" %% "restrecord"  % "2.5-1.6-SNAPSHOT"
+
+for 2.9.2 use liftVersion + "-1.3-SNAPSHOT"
 ```
 
 ### Configuration
-RestRecord can be configured by setting vars on the RestRecordConfig object in Boot.scala.
-
-* host: String = "api.twitter.com"
-* context: Box[String] =  Full("1.1")
-* ssl: Boolean -> if true uses https
-* oauth: Boolean -> if true uses oauth
+RestRecord can be configured through the RestRecordConfig class
 
 Configuration for Twitter's api v1.1 using oauth
 
 ```scala
-import net.liftmodules.RestRecord
-import net.liftmodules.restrecord.{RestRecordConfig}
+// defaults
+case class RestRecordConfig(
+  host: String = "localhost", 
+  port: Box[Int] = Empty, 
+  context: Box[String] = Empty, 
+  ssl: Boolean = false,
+  oauth: Boolean = false,
+  consumer: Box[ConsumerKey] = Empty,
+  token: Box[RequestToken] = Empty
+)
 
-object Boot {
-  etc ...
-   
-  RestRecordConfig.host = "api.twitter.com"
-  RestRecordConfig.context = Full("1.1")
-  RestRecordConfig.oauth = true
-  RestRecord.init()
+// import if you're using oauth
+import com.ning.http.client.oauth._
+
+// mix this into a RestMetaRecord object to configure the resource
+trait TwitterConfig {
+
+  val consumerKey = new ConsumerKey(key, secret)
+  val token = new RequestToken(key, secret)
+
+  val configuration = RestRecordConfig(
+    "api.twitter.com",
+    Empty,
+    Full("1.1"),
+    true, 
+    true,
+    Full(consumerKey),
+    Full(token)
+  )
 }
 ```
-To use oauth you'll need to add these properties into the props file
-
-* restrecord.oauthRequestToken = my_twitter_oauth_token
-* restrecord.oauthTokenSecret = my_twitter_oauth_token_secret
-* restrecord.oauthConsumerKey = my_twitter_consumer_key
-* restrecord.oauthConsumerSecret = my_twitter_consumer_secret
-
 
 ## Creating a RestRecord
 
@@ -89,7 +106,7 @@ class Search extends RestRecord[Search] {
   object statuses extends JSONSubRecordArrayField(this, Statuses)
 }
 
-object Search extends Search with RestMetaRecord[Search] { }
+object Search extends Search with RestMetaRecord[Search] with TwitterConfig
 
 class Statuses extends RestRecord[Statuses] {
   def meta = Statuses
@@ -105,7 +122,7 @@ class Statuses extends RestRecord[Statuses] {
   object text extends OptionalStringField(this, Empty)
 }
 
-object Statuses extends Statuses with RestMetaRecord[Statuses] { }
+object Statuses extends Statuses with RestMetaRecord[Statuses] with TwitterConfig
 ```
 RestRecord uses JSONRecord (which includes JSONSubRecordArrayField used above) from the couchdb lift module. Unfortunately, couchdb imports an older version of Dispatch which conflicts with the newer version used in RestRecord.
 
@@ -114,10 +131,13 @@ My work around for now is to copy JSONRecord into the RestRecord package. Hopefu
 ### Finding a Tweet (GET)
 
 ```scala
-  // api.twitter.com/1.1/search/tweets.json?q=lift_framework
-  val search: Promise[Box[Search]] = Search.find(("q", "lift framework")) 
+  // brings implicits into scopt for Future -> EnrichedFuture
+  import dispatch._ 
 
-  // assert that a promised value be available at any time with the use of apply; this is blocking
+  // api.twitter.com/1.1/search/tweets.json?q=lift_framework
+  val search: Future[Box[Search]] = Search.find(("q", "lift framework")) 
+
+  // assert that an EnrichedFuture value be available at any time with the use of apply; this is blocking
   val result: Box[Search] = search()
 
 ```
@@ -125,10 +145,10 @@ My work around for now is to copy JSONRecord into the RestRecord package. Hopefu
 
 ```scala
   //api.twitter.com/1.1/statuses/show/21947795900469248.json
-  val status: Promise[Box[Status]] = Status.find(21947795900469248.toString + ".json") 
+  val status: Future[Box[Status]] = Status.find(21947795900469248.toString + ".json") 
   
   //api.twitter.com/1.1/statuses/show/21947795900469248.json?trim_user=t
-  val status2: Promise[Box[Status]] = Status.find(21947795900469248.toString + ".json", ("trim_user", "t"))
+  val status2: Future[Box[Status]] = Status.find(21947795900469248.toString + ".json", ("trim_user", "t"))
 ```
 
 HTTP failures are captured in the Box as a Failure. The caller is responsible for handling them 
@@ -152,12 +172,13 @@ object Twitter {
 
 ### POST, PUT, DELETE
 
-Creating, saving and deleting use the matching REST verbs and returns a Promise[Box[JValue]].
+Creating, saving and deleting use the matching REST verbs and returns a Future[Box[JValue]].
 
 ```scala
-val createRes: Promise[Box[JValue]] = MyRest.create  // POST
-val saveRes = Promise[Box[JValue]] = MyRest.save     // PUT
-val deleteRes = Promise[Box[JValue]] = MyRest.delete // DELETE
+val record = MyRecord.createRecord.id(2)
+val createRes: Future[Box[JValue]] = record.create  // POST
+val saveRes: Future[Box[JValue]] = record.save     // PUT
+val deleteRes: Future[Box[JValue]] = record.delete // DELETE
 ```
 
 ### Example Project

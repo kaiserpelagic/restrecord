@@ -3,7 +3,7 @@ import sbt.Keys._
 
 object LiftModuleBuild extends Build {
 
-  val liftVersion = SettingKey[String]("liftVersion", "Version number of the Lift Web Framework")
+  val liftVersion = SettingKey[String]("liftVersion", "2.5.1")
 
   val project = Project("LiftModule", file("."))
 
