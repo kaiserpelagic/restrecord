@@ -18,23 +18,23 @@ import scala.collection.mutable.ListBuffer
 
 trait RestEndpoint {
   
+  // placeholder for and id
   final val * = "*"
 
-  /** Defines the RESTful endpoint for this resource -- /foo */
+  // Defines the RESTful endpoint for this resource
   val uri: List[String]
-  
-  def uri(id: Any): List[String] = uri(List(id.toString))
-  
-  def uri(ids: List[Any]): List[String] = {
-    val strs = ids.map(_.toString)
-    val _ids: ListBuffer[String] = ListBuffer(strs: _*)
 
-    val _uri = uri.foldLeft(ListBuffer[String]())((xs, x) => { 
-      val append = if(x.equals(*) && !_ids.isEmpty) _ids.remove(0) else x 
-      xs.append(append)
-      xs
-    })
+  def uri(ids: Any*): List[String] = {
+    val idStrings: List[String] = List(ids: _*).map(_.toString)
+    if (idStrings.isEmpty) uri
+    else replaceIdPlaceholdersWithIds(uri, idStrings)
+  }
 
-    _uri.toList
+  private def replaceIdPlaceholdersWithIds(uri: List[String], ids: List[String]) = {
+    def specialAppend(path: List[String], ids: List[String], token: String) = {
+      if(token == * && !ids.isEmpty) ((path ::: List(ids(0))), ids.drop(1))
+      else ((path ::: List(token)), ids)
+    }
+    uri.foldLeft((List[String](), ids))((xs, x) => specialAppend(xs._1, xs._2, x))._1 
   }
 }
