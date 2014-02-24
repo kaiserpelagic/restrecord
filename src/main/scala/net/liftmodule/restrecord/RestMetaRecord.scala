@@ -58,7 +58,6 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   
   def findFrom(svc: WebService, path: List[String], 
     query: (String, String)*): Future[Box[BaseRecord]] = {
-
     withHttp(svc.http, oauth(svc url(path) query(query: _*)) find, fromJValue)
   }
 
@@ -74,45 +73,29 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
     }
   }
 
-  def save(inst: BaseRecord): Future[Box[JValue]] = 
-    saveFrom(inst, inst.webservice)
+  def save(inst: BaseRecord, path: List[String]) = 
+    saveFrom(inst, inst.webservice, path)
 
-  def save(inst: BaseRecord, params: List[Any]) = 
-    saveFrom(inst, inst.webservice, params)
-
-  def saveFrom(inst: BaseRecord, svc: WebService, params: List[Any]): Future[Box[JValue]] = {
-    val endpoint = if(params.isEmpty) inst.saveEndpoint else inst.saveEndpoint(params)
-
+  def saveFrom(inst: BaseRecord, svc: WebService, path: List[String]): Future[Box[JValue]] = {
     foreachCallback(inst, _.beforeSave)
     try {
-      withHttp(svc.http, oauth(svc url(endpoint)) save(inst.asJValue), fullIdent)
+      withHttp(svc.http, oauth(svc url(path)) save(inst.asJValue), fullIdent)
     } finally {
       foreachCallback(inst, _.afterSave)
     }
   }
 
-  def saveFrom(inst: BaseRecord, svc: WebService): Future[Box[JValue]] = 
-    saveFrom(inst, svc, List.empty)
+  def delete(inst: BaseRecord, path: List[String]) =
+    deleteFrom(inst, inst.webservice, path)
 
-  def delete(inst: BaseRecord): Future[Box[JValue]] = 
-    deleteFrom(inst, inst.webservice)
-
-  def delete(inst: BaseRecord, params: List[Any]) =
-    deleteFrom(inst, inst.webservice, params)
-
-  def deleteFrom(inst: BaseRecord, svc: WebService, params: List[Any]): Future[Box[JValue]] = {
-    val endpoint = if(params.isEmpty) inst.deleteEndpoint else inst.deleteEndpoint(params)
-
+  def deleteFrom(inst: BaseRecord, svc: WebService, path: List[String]): Future[Box[JValue]] = {
     foreachCallback(inst, _.beforeDelete)
     try { 
-      withHttp(svc.http, oauth(svc url(endpoint)) delete, fullIdent)
+      withHttp(svc.http, oauth(svc url(path)) delete, fullIdent)
     } finally {
       foreachCallback(inst, _.afterDelete)
     }
   }
-
-  def deleteFrom(inst: BaseRecord, svc: WebService): Future[Box[JValue]] = 
-    deleteFrom(inst, svc, List.empty)
 
   def fullIdent(jv: JValue) = Full(jv)
 
@@ -123,5 +106,4 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
 
   def oauth(svc: WebService): WebService = 
     if (config.oauth) svc oauth(config.getConsumer, config.getToken) else svc
-
 }

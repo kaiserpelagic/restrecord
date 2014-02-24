@@ -46,33 +46,28 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType]
 
   lazy val config: RestRecordConfig = meta.configuration
 
-  /** 
-   *  Defines the RESTful id for this resource
-   *  Empty implies this endoint does not use and id
-   *  Used on Saves and Deletes 
-   */
-  def idPk: Box[Any] = Empty
- 
   def create: Future[Box[JValue]] = meta.create(this)
 
-  def save: Future[Box[JValue]] = meta.save(this)
+  def save: Future[Box[JValue]] = meta.save(this, saveEndpoint)
+
+  def save(ids: Any*): Future[Box[JValue]] = meta.save(this, saveEndpoint(List(ids: _*)))
   
-  def delete: Future[Box[JValue]] = meta.delete(this)
+  def delete: Future[Box[JValue]] = meta.delete(this, deleteEndpoint)
+
+  def delete(ids: Any*): Future[Box[JValue]] = meta.delete(this, deleteEndpoint(List(ids: _*)))
 
   def findEndpoint(id: Any) = uri(id)
   
   def findEndpoint = uri 
 
-  def createEndpoint = uri // we should never have an id on creation
+  def createEndpoint = uri
   
-  def saveEndpoint = _discoverEndpoint
+  def saveEndpoint = uri 
 
-  def saveEndpoint(params: List[Any]) = uri(params)
+  def saveEndpoint(ids: List[Any]) = uri(ids)
 
-  def deleteEndpoint = _discoverEndpoint
+  def deleteEndpoint = uri
 
-  def deleteEndpoint(params: List[Any]) = uri(params)
-
-  private def _discoverEndpoint = idPk.map(uri(_)) openOr uri
+  def deleteEndpoint(ids: List[Any]) = uri(ids)
 }
 
