@@ -51,10 +51,14 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType]
   def save: Future[Box[JValue]] = meta.save(this, saveEndpoint)
 
   def save(ids: Any*): Future[Box[JValue]] = meta.save(this, saveEndpoint(List(ids: _*)))
+
+  def save(ids: List[Any], query: (String, String)*): Future[Box[JValue]] = meta.save(this, saveEndpoint(ids), query: _*)
   
   def delete: Future[Box[JValue]] = meta.delete(this, deleteEndpoint)
 
   def delete(ids: Any*): Future[Box[JValue]] = meta.delete(this, deleteEndpoint(List(ids: _*)))
+
+  def delete(ids: List[Any], query: (String, String)*): Future[Box[JValue]] = meta.delete(this, deleteEndpoint(List(ids: _*)), query: _*)
 
   def findEndpoint(id: Any) = uri(id)
   
