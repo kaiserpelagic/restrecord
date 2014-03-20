@@ -73,25 +73,27 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
     }
   }
 
-  def save(inst: BaseRecord, path: List[String]) = 
-    saveFrom(inst, inst.webservice, path)
+  def save(inst: BaseRecord, path: List[String], query: (String, String)*) = 
+    saveFrom(inst, inst.webservice, path, query: _*)
 
-  def saveFrom(inst: BaseRecord, svc: WebService, path: List[String]): Future[Box[JValue]] = {
-    foreachCallback(inst, _.beforeSave)
+  def saveFrom(inst: BaseRecord, svc: WebService, path: List[String],
+    query: (String, String)*): Future[Box[JValue]] = {
+      foreachCallback(inst, _.beforeSave)
     try {
-      withHttp(svc.http, oauth(svc url(path)) save(inst.asJValue), fullIdent)
+      withHttp(svc.http, oauth(svc url(path) query(query: _*)) save(inst.asJValue), fullIdent)
     } finally {
       foreachCallback(inst, _.afterSave)
     }
   }
 
-  def delete(inst: BaseRecord, path: List[String]) =
-    deleteFrom(inst, inst.webservice, path)
+  def delete(inst: BaseRecord, path: List[String], query: (String, String)*) =
+    deleteFrom(inst, inst.webservice, path, query: _*)
 
-  def deleteFrom(inst: BaseRecord, svc: WebService, path: List[String]): Future[Box[JValue]] = {
+  def deleteFrom(inst: BaseRecord, svc: WebService, path: List[String],
+    query: (String, String)*): Future[Box[JValue]] = {
     foreachCallback(inst, _.beforeDelete)
     try { 
-      withHttp(svc.http, oauth(svc url(path)) delete, fullIdent)
+      withHttp(svc.http, oauth(svc url(path) query(query: _*)) delete, fullIdent)
     } finally {
       foreachCallback(inst, _.afterDelete)
     }
