@@ -24,8 +24,8 @@ trait RestEndpoint {
   // Defines the RESTful endpoint for this resource
   val uri: List[String]
 
-  def uri(ids: Any*): List[String] = {
-    val idStrings: List[String] = List(ids: _*).map(_.toString)
+  def uri(ids: String*): List[String] = {
+    val idStrings: List[String] = List(ids: _*)
     if (idStrings.isEmpty) uri
     else replaceIdPlaceholdersWithIds(uri, idStrings)
   }

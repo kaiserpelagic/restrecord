@@ -50,28 +50,28 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType]
 
   def save: Future[Box[JValue]] = meta.save(this, saveEndpoint)
 
-  def save(ids: Any*): Future[Box[JValue]] = meta.save(this, saveEndpoint(List(ids: _*)))
+  def save(ids: List[String]): Future[Box[JValue]] = meta.save(this, saveEndpoint(ids: _*))
 
-  def save(ids: List[Any], query: (String, String)*): Future[Box[JValue]] = meta.save(this, saveEndpoint(ids), query: _*)
+  def save(ids: List[String], query: (String, String)*): Future[Box[JValue]] = meta.save(this, saveEndpoint(ids: _*), query: _*)
   
   def delete: Future[Box[JValue]] = meta.delete(this, deleteEndpoint)
 
-  def delete(ids: Any*): Future[Box[JValue]] = meta.delete(this, deleteEndpoint(List(ids: _*)))
+  def delete(ids: List[String]): Future[Box[JValue]] = meta.delete(this, deleteEndpoint(ids: _*))
 
-  def delete(ids: List[Any], query: (String, String)*): Future[Box[JValue]] = meta.delete(this, deleteEndpoint(List(ids: _*)), query: _*)
+  def delete(ids: List[String], query: (String, String)*): Future[Box[JValue]] = meta.delete(this, deleteEndpoint(ids: _*), query: _*)
 
-  def findEndpoint(id: Any) = uri(id)
-  
   def findEndpoint = uri 
 
   def createEndpoint = uri
   
   def saveEndpoint = uri 
 
-  def saveEndpoint(ids: List[Any]) = uri(ids)
-
   def deleteEndpoint = uri
 
-  def deleteEndpoint(ids: List[Any]) = uri(ids)
+  def findEndpoint(ids: String*) = uri(ids: _*)
+
+  def saveEndpoint(ids: String*) = uri(ids: _*)
+
+  def deleteEndpoint(ids: String*) = uri(ids: _*)
 }
 
