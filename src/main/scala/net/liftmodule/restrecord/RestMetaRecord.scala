@@ -49,6 +49,9 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
 
   def find(query: (String, String)*): Future[Box[BaseRecord]] = 
     findFrom(webservice, findEndpoint, query: _*)
+
+  def find(id: Int, query: (String, String)*): Future[Box[BaseRecord]] =
+    find(List(id.toString), query: _*)
   
   def find(id: String, query: (String, String)*): Future[Box[BaseRecord]] =
     find(List(id), query: _*)
