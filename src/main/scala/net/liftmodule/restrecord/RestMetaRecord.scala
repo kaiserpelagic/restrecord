@@ -50,14 +50,20 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   def find(query: (String, String)*): Future[Box[BaseRecord]] = 
     findFrom(webservice, findEndpoint, query: _*)
 
-  def find(id: Int, query: (String, String)*): Future[Box[BaseRecord]] =
+
+  def find(id: Int, query: (String, String)*): Future[Box[BaseRecord]] = {
     find(List(id.toString), query: _*)
+  }
   
-  def find(id: String, query: (String, String)*): Future[Box[BaseRecord]] =
+  def find(id: String, query: (String, String)*): Future[Box[BaseRecord]] = {
     find(List(id), query: _*)
+  }
   
-  def find(ids: List[String], query: (String, String)*): Future[Box[BaseRecord]] =
-    findFrom(webservice, findEndpoint(ids: _*), query: _*)
+  def find(ids: List[String], query: (String, String)*): Future[Box[BaseRecord]] = {
+    val rec = findFrom(webservice, findEndpoint(ids: _*), query: _*)
+    injectResourceIds(rec, ids)
+    rec
+  }
   
   def findFrom(svc: WebService, path: List[String], 
     query: (String, String)*): Future[Box[BaseRecord]] = {
@@ -111,4 +117,8 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
 
   def oauth(svc: WebService): WebService = 
     if (config.oauth) svc oauth(config.getConsumer, config.getToken) else svc
+
+  private def injectResourceIds(rec: Future[Box[BaseRecord]], ids: List[String]) = {
+    rec.foreach(_.foreach(_.resourceIds = ids))
+  }
 }

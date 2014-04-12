@@ -37,6 +37,8 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType]
    */
   def meta: RestMetaRecord[MyType]
 
+  var resourceIds: List[String] = Nil
+
   def webservice: WebService = new WebServiceImpl(req)
 
   def req = {
@@ -74,4 +76,3 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType]
 
   def deleteEndpoint(ids: String*) = uri(ids: _*)
 }
-
