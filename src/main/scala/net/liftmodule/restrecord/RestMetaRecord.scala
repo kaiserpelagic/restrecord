@@ -71,7 +71,7 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   }
 
   def create(inst: BaseRecord, path: List[String], query: (String, String)*) = 
-    saveFrom(inst, inst.webservice, path, query: _*)
+    createFrom(inst, inst.webservice, path, query: _*)
 
   def createFrom(inst: BaseRecord, svc: WebService, path: List[String],
     query: (String, String)*): Future[Box[JValue]] = {
