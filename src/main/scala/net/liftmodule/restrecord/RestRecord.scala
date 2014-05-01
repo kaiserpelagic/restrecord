@@ -48,7 +48,9 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType]
 
   lazy val config: RestRecordConfig = meta.configuration
 
-  def create: Future[Box[JValue]] = meta.create(this)
+  def create: Future[Box[JValue]] = meta.create(this, createEndpoint)
+
+  def create(ids: List[String]): Future[Box[JValue]] = meta.create(this, createEndpoint(ids: _*))
 
   def save: Future[Box[JValue]] = meta.save(this, saveEndpoint)
 
@@ -73,6 +75,8 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType]
   def findEndpoint(ids: String*) = uri(ids: _*)
 
   def saveEndpoint(ids: String*) = uri(ids: _*)
+
+  def createEndpoint(ids: String*) = uri(ids: _*)
 
   def deleteEndpoint(ids: String*) = uri(ids: _*)
 }

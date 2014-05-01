@@ -70,13 +70,14 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
     withHttp(svc.http, oauth(svc url(path) query(query: _*)) find, fromJValue)
   }
 
-  def create(inst: BaseRecord): Future[Box[JValue]] = 
-    createFrom(inst, inst.webservice)
+  def create(inst: BaseRecord, path: List[String], query: (String, String)*) = 
+    saveFrom(inst, inst.webservice, path, query: _*)
 
-  def createFrom(inst: BaseRecord, svc: WebService): Future[Box[JValue]] = { 
-    foreachCallback(inst, _.beforeCreate)
+  def createFrom(inst: BaseRecord, svc: WebService, path: List[String],
+    query: (String, String)*): Future[Box[JValue]] = {
+      foreachCallback(inst, _.beforeCreate)
     try {
-      withHttp(svc.http, oauth(svc url(inst.createEndpoint)) create(inst.asJValue), fullIdent)
+      withHttp(svc.http, oauth(svc url(path) query(query: _*)) create(inst.asJValue), fullIdent)
     } finally {
       foreachCallback(inst, _.afterCreate)
     }
