@@ -78,16 +78,18 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
     withHttp(svc.http, oauth(svc url(path) query(query: _*)) create(inst.asJValue), fullJV)
   }
 
-  def save(inst: BaseRecord, path: List[String], query: (String, String)*) = 
+  def save(inst: BaseRecord, path: List[String], query: (String, String)*) = { 
     saveFrom(inst, inst.webservice, path, query: _*)
+  }
 
   def saveFrom(inst: BaseRecord, svc: WebService, path: List[String],
     query: (String, String)*): Future[Box[JValue]] = {
     withHttp(svc.http, oauth(svc url(path) query(query: _*)) save(inst.asJValue), fullJV)
   }
 
-  def delete(inst: BaseRecord, path: List[String], query: (String, String)*) =
+  def delete(inst: BaseRecord, path: List[String], query: (String, String)*) = {
     deleteFrom(inst, inst.webservice, path, query: _*)
+  }
 
   def deleteFrom(inst: BaseRecord, svc: WebService, path: List[String],
     query: (String, String)*): Future[Box[JValue]] = {
@@ -99,8 +101,9 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
     HttpHelper.execute(h, body, handle) 
   }
 
-  def oauth(svc: WebService): WebService = 
+  def oauth(svc: WebService): WebService = { 
     if (config.oauth) svc oauth(config.getConsumer, config.getToken) else svc
+  }
 
   private def fullJV(jv: JValue) = Full(jv)
 
