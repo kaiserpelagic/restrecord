@@ -18,6 +18,7 @@ import unfiltered.response._
 import unfiltered.request._
 
 object TestServer {
+  val host = "127.0.0.1"
   val server = {
     netty.Http.anylocal.handler(netty.cycle.Planify {
       case req @ Path(Seg("echo" :: json :: Nil)) => 
@@ -26,18 +27,15 @@ object TestServer {
   }
 }
 
-trait Config {
-  val configuration = RestRecordConfig("127.0.0.1", Full(TestServer.server.port))
-}
-
 class Echo extends RestRecord[Echo] {
   def meta = Echo
   val uri = "echo" :: * :: Nil
-
   object id extends IntField(this, 0)
 }
 
-object Echo extends Echo with RestMetaRecord[Echo] with Config
+object Echo extends Echo with RestMetaRecord[Echo] {
+  val configuration = RestRecordConfig(TestServer.host, Full(TestServer.server.port))
+}
 
 class RestRecordTest extends FunSuiteWithSession with MustMatchers {
 

@@ -28,7 +28,7 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 case class RestRecordConfig(
-  host: String = "localhost", 
+  host: String, 
   port: Box[Int] = Empty, 
   context: Box[String] = Empty, 
   ssl: Boolean = false,
