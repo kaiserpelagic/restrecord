@@ -28,7 +28,7 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 case class RestRecordConfig(
-  host: String = "localhost", 
+  host: String, 
   port: Box[Int] = Empty, 
   context: Box[String] = Empty, 
   ssl: Boolean = false,
@@ -47,9 +47,9 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   
   val configuration: RestRecordConfig
 
-  def find(query: (String, String)*): Future[Box[BaseRecord]] = 
+  def find(query: (String, String)*): Future[Box[BaseRecord]] = { 
     findFrom(webservice, findEndpoint, query: _*)
-
+  }
 
   def find(id: Int, query: (String, String)*): Future[Box[BaseRecord]] = {
     find(List(id.toString), query: _*)
@@ -75,49 +75,37 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
 
   def createFrom(inst: BaseRecord, svc: WebService, path: List[String],
     query: (String, String)*): Future[Box[JValue]] = {
-      foreachCallback(inst, _.beforeCreate)
-    try {
-      withHttp(svc.http, oauth(svc url(path) query(query: _*)) create(inst.asJValue), fullIdent)
-    } finally {
-      foreachCallback(inst, _.afterCreate)
-    }
+    withHttp(svc.http, oauth(svc url(path) query(query: _*)) create(inst.asJValue), fullJV)
   }
 
-  def save(inst: BaseRecord, path: List[String], query: (String, String)*) = 
+  def save(inst: BaseRecord, path: List[String], query: (String, String)*) = { 
     saveFrom(inst, inst.webservice, path, query: _*)
+  }
 
   def saveFrom(inst: BaseRecord, svc: WebService, path: List[String],
     query: (String, String)*): Future[Box[JValue]] = {
-      foreachCallback(inst, _.beforeSave)
-    try {
-      withHttp(svc.http, oauth(svc url(path) query(query: _*)) save(inst.asJValue), fullIdent)
-    } finally {
-      foreachCallback(inst, _.afterSave)
-    }
+    withHttp(svc.http, oauth(svc url(path) query(query: _*)) save(inst.asJValue), fullJV)
   }
 
-  def delete(inst: BaseRecord, path: List[String], query: (String, String)*) =
+  def delete(inst: BaseRecord, path: List[String], query: (String, String)*) = {
     deleteFrom(inst, inst.webservice, path, query: _*)
+  }
 
   def deleteFrom(inst: BaseRecord, svc: WebService, path: List[String],
     query: (String, String)*): Future[Box[JValue]] = {
-    foreachCallback(inst, _.beforeDelete)
-    try { 
-      withHttp(svc.http, oauth(svc url(path) query(query: _*)) delete, fullIdent)
-    } finally {
-      foreachCallback(inst, _.afterDelete)
-    }
+    withHttp(svc.http, oauth(svc url(path) query(query: _*)) delete, fullJV)
   }
-
-  def fullIdent(jv: JValue) = Full(jv)
 
   def withHttp[T](h: Http, body: (Request, FunctionHandler[JValue]), 
     handle: JValue => Box[T]): Future[Box[T]] = {
     HttpHelper.execute(h, body, handle) 
   }
 
-  def oauth(svc: WebService): WebService = 
+  def oauth(svc: WebService): WebService = { 
     if (config.oauth) svc oauth(config.getConsumer, config.getToken) else svc
+  }
+
+  private def fullJV(jv: JValue) = Full(jv)
 
   private def injectResourceIds(rec: Future[Box[BaseRecord]], ids: List[String]) = {
     rec.foreach(_.foreach(_.resourceIds = ids))

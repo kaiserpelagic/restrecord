@@ -2,13 +2,13 @@ name := "restrecord"
 
 liftVersion <<= liftVersion ?? "2.5"
 
-version <<= liftVersion apply { _ + "-1.7-SNAPSHOT" }
+version <<= liftVersion apply { _ + "-1.7" }
 
 organization := "net.liftmodules"
  
-scalaVersion := "2.10.0"
+scalaVersion := "2.10.4"
   
-crossScalaVersions := Seq("2.10.0", "2.10.1")
+crossScalaVersions := Seq("2.10.4")
 
 resolvers += "CB Central Mirror" at "http://repo.cloudbees.com/content/groups/public"
 
