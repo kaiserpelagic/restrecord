@@ -17,10 +17,10 @@ package restrecord
 import dispatch._
 import dispatch.oauth._
 
-import com.ning.http.client.{Request}
+import com.ning.http.client.{Response, Request}
 import com.ning.http.client.oauth._
 
-import net.liftweb.json.JsonAST.{JValue}
+import net.liftweb.json.{ JsonParser, JValue }
 
 import scala.xml._
 
@@ -78,9 +78,18 @@ trait WebRequest {
   def request: Req
 }
 
+object AsString extends (Response => String) {
+  def apply(r: Response) = r.getResponseBody("UTF-8")
+}
+
+object AsJson extends (Response => JValue) {
+  def apply(r: Response) =
+    (AsString andThen JsonParser.parse)(r)
+}
+
 trait RequestHandler extends WebRequest with RequestHandlerInterface {
 
-  def find = request.GET > as.lift.Json
+  def find = request.GET > AsJson
   
   def create(body: String) = request.POST.setBody(body) > as.lift.Json 
   
