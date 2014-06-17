@@ -79,7 +79,9 @@ trait WebRequest {
 }
 
 object AsString extends (Response => String) {
-  def apply(r: Response) = r.getResponseBody("UTF-8")
+  def apply(r: Response) = {
+    r.getResponseBody("UTF-8")
+  }
 }
 
 object AsJson extends (Response => JValue) {
@@ -91,11 +93,11 @@ trait RequestHandler extends WebRequest with RequestHandlerInterface {
 
   def find = request.GET > AsJson
   
-  def create(body: String) = request.POST.setBody(body) > as.lift.Json 
+  def create(body: String) = request.POST.setBody(body) > AsJson 
   
-  def save(body: String) = request.PUT.setBody(body) > as.lift.Json
+  def save(body: String) = request.PUT.setBody(body) > AsJson
 
-  def delete = request.DELETE > as.lift.Json
+  def delete = request.DELETE > AsJson
 
 
   def findXML = request > as.xml.Elem 
