@@ -1,6 +1,6 @@
 name := "restrecord"
 
-liftVersion <<= liftVersion ?? "2.5"
+liftVersion <<= liftVersion ?? "2.6-RC1"
 
 version <<= liftVersion apply { _ + "-1.9-SNAPSHOT" }
 
