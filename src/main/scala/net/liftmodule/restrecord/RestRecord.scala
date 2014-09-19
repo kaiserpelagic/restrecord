@@ -39,12 +39,14 @@ trait RestRecord[MyType <: RestRecord[MyType]] extends JSONRecord[MyType]
 
   var resourceIds: List[String] = Nil
 
-  def webservice: WebService = new WebServiceImpl(req)
+  def webservice: WebService = (new WebServiceImpl(req)) head ((config.headers ::: headers): _*)
 
   def req = {
     val reqNoContext = (config.port.map(:/(config.host, _)) openOr :/(config.host)) 
     (config.context.map(reqNoContext / _) openOr reqNoContext)
   }
+
+  var headers: List[(String, String)] = Nil
 
   lazy val config: RestRecordConfig = meta.configuration
 

@@ -34,7 +34,8 @@ case class RestRecordConfig(
   ssl: Boolean = false,
   oauth: Boolean = false,
   consumer: Box[ConsumerKey] = Empty,
-  token: Box[RequestToken] = Empty
+  token: Box[RequestToken] = Empty,
+  headers: List[(String, String)] = Nil
 ) {
   def getConsumer = consumer openOr new ConsumerKey("", "")
   def getToken = token openOr new RequestToken("", "")
@@ -46,6 +47,8 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   self: BaseRecord =>
   
   val configuration: RestRecordConfig
+
+  lazy val staticHeaders = configuration.headers
 
   def find(query: (String, String)*): Future[Box[BaseRecord]] = { 
     findFrom(webservice, findEndpoint, query: _*)
