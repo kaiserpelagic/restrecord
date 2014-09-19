@@ -48,8 +48,6 @@ trait RestMetaRecord[BaseRecord <: RestRecord[BaseRecord]]
   
   val configuration: RestRecordConfig
 
-  lazy val staticHeaders = configuration.headers
-
   def find(query: (String, String)*): Future[Box[BaseRecord]] = { 
     findFrom(webservice, findEndpoint, query: _*)
   }
